@@ -27,8 +27,7 @@ fun LoginScreen(viewModel: AuthViewModel, onRegisterClick: () -> Unit) {
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(16.dp)
-            .background(color = Color.Gray),
+            .padding(16.dp),
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
