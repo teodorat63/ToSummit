@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "245212222352",
+    "project_id": "tosummit-3d4c4",
+    "storage_bucket": "tosummit-3d4c4.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:245212222352:android:2e712bde83a4f72068d915",
+        "android_client_info": {
+          "package_name": "com.example.mobileapp"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyALTrjgbW09ecmikvxfcna4D0Nsas6G6OA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
