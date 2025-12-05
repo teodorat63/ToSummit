@@ -6,31 +6,31 @@ import androidx.activity.compose.setContent
 import androidx.compose.runtime.Composable
 
 import com.example.mobileapp.data.repository.AuthRepository
+import com.example.mobileapp.navigation.NavGraph
 import com.example.mobileapp.screens.auth.AuthViewModel
 import com.example.mobileapp.screens.auth.LoginScreen
+import com.example.mobileapp.screens.auth.RegisterScreen
 import com.example.mobileapp.ui.theme.MobileAppTheme
 import com.google.firebase.auth.FirebaseAuth
+import dagger.hilt.android.AndroidEntryPoint
 
 
+@AndroidEntryPoint
 class MainActivity : ComponentActivity() {
-    private val authRepository by lazy { AuthRepository(FirebaseAuth.getInstance()) }
-    private val authViewModel by lazy { AuthViewModel(authRepository) }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            MyApp(authViewModel)
+            MyApp()
         }
     }
 }
 
 
 @Composable
-fun MyApp(viewModel: AuthViewModel) {
+fun MyApp() {
     MobileAppTheme {
-        LoginScreen(viewModel = viewModel, onRegisterClick = {
-            // Handle registration click
-        })
+        NavGraph()
     }
 }
 

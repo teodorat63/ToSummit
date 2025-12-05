@@ -1,6 +1,5 @@
 package com.example.mobileapp.screens.auth
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -19,7 +18,6 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.TextButton
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.graphics.Color
-
 
 
 @Composable
@@ -52,9 +50,14 @@ fun LoginScreen(viewModel: AuthViewModel, onRegisterClick: () -> Unit) {
             Text("Don't have an account? Register")
         }
         val error = viewModel.errorMessage
-        if (error != null) {
+        if (!error.isNullOrEmpty()) {
             Spacer(modifier = Modifier.height(8.dp))
+            Text(
+                text = error,
+                color = Color.Red // or Color.Red
+            )
         }
+
 
     }
 }
