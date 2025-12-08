@@ -17,22 +17,24 @@ class AuthViewModel @Inject constructor(private val repository: AuthRepository) 
     var password by mutableStateOf("")
     var errorMessage by mutableStateOf<String?>(null)
 
-    fun onEmailChange(newEmail: String) {
-        email = newEmail
-    }
+    var loginSuccess by mutableStateOf(false)
+        private set
 
-    fun onPasswordChange(newPassword: String) {
-        password = newPassword
-    }
+    var registerSuccess by mutableStateOf(false)
+        private set
+
+    fun onEmailChange(newEmail: String) { email = newEmail }
+    fun onPasswordChange(newPassword: String) { password = newPassword }
 
     fun login() {
         viewModelScope.launch {
             val result = repository.login(email, password)
             if (result.isFailure) {
                 errorMessage = result.exceptionOrNull()?.localizedMessage
+                loginSuccess = false
             } else {
                 errorMessage = null
-                // TODO: Navigate to next screen
+                loginSuccess = true
             }
         }
     }
@@ -42,16 +44,20 @@ class AuthViewModel @Inject constructor(private val repository: AuthRepository) 
             val result = repository.register(email, password)
             if (result.isFailure) {
                 errorMessage = result.exceptionOrNull()?.localizedMessage
+                registerSuccess=false
             } else {
                 errorMessage = null
-                // TODO: Navigate to next screen
+                registerSuccess=true
             }
         }
     }
 
     fun logout() {
         repository.logout()
+        loginSuccess = false
     }
+
+
 
 //    val currentUser: FirebaseUser?
 //        get() = repository.currentUser

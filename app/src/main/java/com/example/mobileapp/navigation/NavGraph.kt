@@ -10,6 +10,7 @@ import com.example.mobileapp.screens.auth.AuthViewModel
 import com.example.mobileapp.screens.auth.LoginScreen
 import com.example.mobileapp.screens.auth.RegisterScreen
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.example.mobileapp.screens.DashboardScreen
 
 @Composable
 fun NavGraph() {
@@ -21,24 +22,17 @@ fun NavGraph() {
     ) {
         composable(Screen.LoginScreen.route) {
             val authViewModel: AuthViewModel = hiltViewModel()
-
             LoginScreen(
                 viewModel = authViewModel,
-                onRegisterClick = {
-                    navController.navigate(Screen.RegisterScreen.route)
-                }
+                navController
             )
         }
 
         composable(Screen.RegisterScreen.route) {
             val authViewModel: AuthViewModel = hiltViewModel()
-
-            RegisterScreen(
-                viewModel = authViewModel,
-                onLoginClick = {
-                    navController.navigate(Screen.LoginScreen.route)
-                }
-            )
+            RegisterScreen(viewModel = authViewModel, navController)
         }
+
+        composable(Screen.DashboardScreen.route){ DashboardScreen(navController) }
     }
 }

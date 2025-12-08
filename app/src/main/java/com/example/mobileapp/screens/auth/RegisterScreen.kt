@@ -17,17 +17,26 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.foundation.layout.Column
 import androidx.compose.material3.Button
 import androidx.compose.material3.TextButton
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.navigation.NavController
+import com.example.mobileapp.screens.Screen
 
 @Composable
-fun RegisterScreen(viewModel: AuthViewModel, onLoginClick: () -> Unit) {
+fun RegisterScreen(viewModel: AuthViewModel, navController: NavController) {
+    if (viewModel.registerSuccess) {
+        navController.navigate(Screen.DashboardScreen.route) {
+            popUpTo(Screen.RegisterScreen.route) { inclusive = true }
+        }
+    }
     val context = LocalContext.current
     Column(
         modifier = Modifier
             .fillMaxSize()
             .padding(16.dp
             ),
-        verticalArrangement = Arrangement.Center
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
     ) {
         TextField(
             value = viewModel.email,
@@ -53,12 +62,20 @@ fun RegisterScreen(viewModel: AuthViewModel, onLoginClick: () -> Unit) {
             Text("Register")
         }
         Spacer(modifier = Modifier.height(8.dp))
-        TextButton(onClick = onLoginClick) {
+        TextButton(onClick = {
+            navController.navigate(Screen.LoginScreen.route)
+        }) {
             Text("Already have an account? Login")
         }
+
+
         val error = viewModel.errorMessage
-        if (error != null) {
+        if (!error.isNullOrEmpty()) {
             Spacer(modifier = Modifier.height(8.dp))
+            Text(
+                text = error,
+                color = Color.Red
+            )
         }
 
     }

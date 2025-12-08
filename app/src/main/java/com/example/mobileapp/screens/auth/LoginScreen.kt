@@ -18,10 +18,19 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.TextButton
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.graphics.Color
+import androidx.navigation.NavController
+import com.example.mobileapp.screens.Screen
 
 
 @Composable
-fun LoginScreen(viewModel: AuthViewModel, onRegisterClick: () -> Unit) {
+fun LoginScreen(viewModel: AuthViewModel, navController: NavController) {
+
+    if (viewModel.loginSuccess) {
+        navController.navigate(Screen.DashboardScreen.route) {
+            popUpTo(Screen.LoginScreen.route) { inclusive = true }
+        }
+    }
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -46,7 +55,7 @@ fun LoginScreen(viewModel: AuthViewModel, onRegisterClick: () -> Unit) {
             Text("Login")
         }
         Spacer(modifier = Modifier.height(8.dp))
-        TextButton(onClick = onRegisterClick) {
+        TextButton(onClick = {navController.navigate(Screen.RegisterScreen.route)}) {
             Text("Don't have an account? Register")
         }
         val error = viewModel.errorMessage
