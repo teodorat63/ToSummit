@@ -13,6 +13,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.google.maps.android.compose.GoogleMap
 
 
 @Composable
@@ -25,6 +26,9 @@ fun DashboardScreen(navController: NavController) {
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
+        GoogleMap(
+            modifier = Modifier.fillMaxSize(),
+        )
         // Welcome text
         Text(
             text = "Welcome to ToSummit.\nYou have successfully logged in.",
