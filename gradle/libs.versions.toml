@@ -12,6 +12,7 @@ composeBom = "2024.09.00"
 firebaseAuth = "24.0.1"
 mapsComposeVersion = "4.4.1"
 mapsSecret = "2.0.1"
+playServicesLocation = "21.3.0"
 
 
 [libraries]
@@ -34,6 +35,7 @@ firebase-auth = { group = "com.google.firebase", name = "firebase-auth", version
 maps-compose = { module = "com.google.maps.android:maps-compose", version.ref = "mapsComposeVersion" }
 maps-compose-utils = { module = "com.google.maps.android:maps-compose-utils", version.ref = "mapsComposeVersion" }
 maps-compose-widgets = { module = "com.google.maps.android:maps-compose-widgets", version.ref = "mapsComposeVersion" }
+play-services-location = { group = "com.google.android.gms", name = "play-services-location", version.ref = "playServicesLocation" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

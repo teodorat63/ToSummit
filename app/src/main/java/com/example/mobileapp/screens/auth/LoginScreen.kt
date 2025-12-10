@@ -26,7 +26,7 @@ import com.example.mobileapp.screens.Screen
 fun LoginScreen(viewModel: AuthViewModel, navController: NavController) {
 
     if (viewModel.loginSuccess) {
-        navController.navigate(Screen.DashboardScreen.route) {
+        navController.navigate(Screen.MapScreen.route) {
             popUpTo(Screen.LoginScreen.route) { inclusive = true }
         }
     }

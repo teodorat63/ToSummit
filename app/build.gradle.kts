@@ -64,7 +64,8 @@ dependencies {
 
 
 
-        // Google Maps Compose library
+        implementation(libs.play.services.location)
+    // Google Maps Compose library
     val mapsComposeVersion = "4.4.1"
     implementation(libs.maps.compose)
     // Google Maps Compose utility library

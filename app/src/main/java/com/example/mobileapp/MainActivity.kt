@@ -1,17 +1,18 @@
 package com.example.mobileapp
 
+import android.Manifest
 import android.os.Bundle
 import androidx.activity.ComponentActivity
+import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
-import androidx.compose.runtime.Composable
-
-import com.example.mobileapp.data.repository.AuthRepository
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material3.Text
+import androidx.compose.runtime.*
+import androidx.compose.ui.Modifier
 import com.example.mobileapp.navigation.NavGraph
-import com.example.mobileapp.screens.auth.AuthViewModel
-import com.example.mobileapp.screens.auth.LoginScreen
-import com.example.mobileapp.screens.auth.RegisterScreen
 import com.example.mobileapp.ui.theme.MobileAppTheme
-import com.google.firebase.auth.FirebaseAuth
 import dagger.hilt.android.AndroidEntryPoint
 
 
@@ -21,9 +22,12 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
+
             MyApp()
         }
+
     }
+
 }
 
 

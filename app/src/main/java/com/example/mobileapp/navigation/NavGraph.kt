@@ -11,6 +11,8 @@ import com.example.mobileapp.screens.auth.LoginScreen
 import com.example.mobileapp.screens.auth.RegisterScreen
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.mobileapp.screens.DashboardScreen
+import com.example.mobileapp.screens.Location.MapScreen
+import com.example.mobileapp.screens.PermissionScreen
 
 @Composable
 fun NavGraph() {
@@ -34,5 +36,17 @@ fun NavGraph() {
         }
 
         composable(Screen.DashboardScreen.route){ DashboardScreen(navController) }
+
+        composable(Screen.MapScreen.route){ MapScreen() }
+
+        composable("permissions") {
+            PermissionScreen(
+                onPermissionGranted = {
+                    navController.navigate("map") {
+                        popUpTo("permissions") { inclusive = true }
+                    }
+                }
+            )
+        }
     }
 }
