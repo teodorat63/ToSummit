@@ -21,62 +21,116 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.navigation.NavController
 import com.example.mobileapp.screens.Screen
+import androidx.compose.runtime.LaunchedEffect
+
 
 @Composable
-fun RegisterScreen(viewModel: AuthViewModel, navController: NavController) {
-    if (viewModel.registerSuccess) {
-        navController.navigate(Screen.DashboardScreen.route) {
-            popUpTo(Screen.RegisterScreen.route) { inclusive = true }
+fun RegisterScreen(
+    viewModel: AuthViewModel,
+    navController: NavController
+) {
+    val state = viewModel.registerState
+    val context = LocalContext.current
+
+
+    LaunchedEffect(state.success) {
+        if (state.success) {
+            navController.navigate(Screen.DashboardScreen.route) {
+                popUpTo(Screen.RegisterScreen.route) { inclusive = true }
+            }
         }
     }
-    val context = LocalContext.current
+
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(16.dp
-            ),
+            .padding(16.dp),
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
+
+        // EMAIL
         TextField(
-            value = viewModel.email,
-            onValueChange = viewModel::onEmailChange,
-            label = { Text("Email") }
+            value = state.email,
+            onValueChange = viewModel::onRegisterEmailChange,
+            label = { Text("Email") },
+            modifier = Modifier.fillMaxWidth()
         )
+
         Spacer(modifier = Modifier.height(8.dp))
+
+        // PASSWORD
         TextField(
-            value = viewModel.password,
-            onValueChange = viewModel::onPasswordChange,
+            value = state.password,
+            onValueChange = viewModel::onRegisterPasswordChange,
             label = { Text("Password") },
+            modifier = Modifier.fillMaxWidth(),
             visualTransformation = PasswordVisualTransformation()
         )
+
         Spacer(modifier = Modifier.height(8.dp))
-//        TextField(
-//            value = viewModel.confirmPassword,
-//            onValueChange = viewModel::onConfirmPasswordChange,
-//            label = { Text("Confirm Password") },
-//            visualTransformation = PasswordVisualTransformation()
-//        )
+
+        // FIRST NAME
+        TextField(
+            value = state.firstName,
+            onValueChange = viewModel::onRegisterFirstNameChange,
+            label = { Text("First Name") },
+            modifier = Modifier.fillMaxWidth()
+        )
+
+        Spacer(modifier = Modifier.height(8.dp))
+
+        // LAST NAME
+        TextField(
+            value = state.lastName,
+            onValueChange = viewModel::onRegisterLastNameChange,
+            label = { Text("Last Name") },
+            modifier = Modifier.fillMaxWidth()
+        )
+
+        Spacer(modifier = Modifier.height(8.dp))
+
+        // PHONE
+        TextField(
+            value = state.phone,
+            onValueChange = viewModel::onRegisterPhoneChange,
+            label = { Text("Phone Number") },
+            modifier = Modifier.fillMaxWidth()
+        )
+
         Spacer(modifier = Modifier.height(16.dp))
-        Button(onClick = { viewModel.register() }, modifier = Modifier.fillMaxWidth()) {
-            Text("Register")
+
+        // PHOTO PICKER TO BE ADDED
+        Button(
+            onClick = { /* add photo pick action  */ },
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Text("Choose Photo (coming next)")
         }
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        // REGISTER BUTTON
+        Button(
+            onClick = { viewModel.register() },
+            modifier = Modifier.fillMaxWidth(),
+            enabled = !state.isLoading
+        ) {
+            Text(if (state.isLoading) "Registering..." else "Register")
+        }
+
         Spacer(modifier = Modifier.height(8.dp))
-        TextButton(onClick = {
-            navController.navigate(Screen.LoginScreen.route)
-        }) {
+
+        // NAVIGATION TO LOGIN
+        TextButton(onClick = { navController.navigate(Screen.LoginScreen.route) }) {
             Text("Already have an account? Login")
         }
 
-
-        val error = viewModel.errorMessage
-        if (!error.isNullOrEmpty()) {
+        // ERROR
+        state.error?.let {
             Spacer(modifier = Modifier.height(8.dp))
-            Text(
-                text = error,
-                color = Color.Red
-            )
+            Text(text = it, color = Color.Red)
         }
-
     }
 }
+

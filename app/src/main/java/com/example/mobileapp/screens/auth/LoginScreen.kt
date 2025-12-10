@@ -1,33 +1,27 @@
 package com.example.mobileapp.screens.auth
 
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
+import androidx.compose.foundation.layout.*
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
-
-import androidx.compose.foundation.layout.Column
-import androidx.compose.material3.Button
-import androidx.compose.material3.TextButton
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.graphics.Color
 import androidx.navigation.NavController
 import com.example.mobileapp.screens.Screen
-
 
 @Composable
 fun LoginScreen(viewModel: AuthViewModel, navController: NavController) {
 
-    if (viewModel.loginSuccess) {
-        navController.navigate(Screen.MapScreen.route) {
-            popUpTo(Screen.LoginScreen.route) { inclusive = true }
+    val state = viewModel.loginState
+
+    LaunchedEffect(state.success) {
+        if (state.success) {
+            navController.navigate(Screen.MapScreen.route) {
+                popUpTo(Screen.LoginScreen.route) { inclusive = true }
+            }
         }
     }
 
@@ -38,35 +32,50 @@ fun LoginScreen(viewModel: AuthViewModel, navController: NavController) {
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
+
+        // EMAIL
         TextField(
-            value = viewModel.email,
-            onValueChange = viewModel::onEmailChange,
-            label = { Text("Email") }
+            value = state.email,
+            onValueChange = viewModel::onLoginEmailChange,
+            label = { Text("Email") },
+            modifier = Modifier.fillMaxWidth()
         )
+
         Spacer(modifier = Modifier.height(8.dp))
+
+        // PASSWORD
         TextField(
-            value = viewModel.password,
-            onValueChange = viewModel::onPasswordChange,
+            value = state.password,
+            onValueChange = viewModel::onLoginPasswordChange,
             label = { Text("Password") },
-            visualTransformation = PasswordVisualTransformation()
+            visualTransformation = PasswordVisualTransformation(),
+            modifier = Modifier.fillMaxWidth()
         )
+
         Spacer(modifier = Modifier.height(16.dp))
-        Button(onClick = { viewModel.login() }, modifier = Modifier.fillMaxWidth()) {
-            Text("Login")
+
+        // LOGIN BUTTON
+        Button(
+            onClick = { viewModel.login() },
+            modifier = Modifier.fillMaxWidth(),
+            enabled = !state.isLoading
+        ) {
+            Text(if (state.isLoading) "Logging in..." else "Login")
         }
+
         Spacer(modifier = Modifier.height(8.dp))
-        TextButton(onClick = {navController.navigate(Screen.RegisterScreen.route)}) {
+
+        // NAVIGATE TO REGISTER
+        TextButton(
+            onClick = { navController.navigate(Screen.RegisterScreen.route) }
+        ) {
             Text("Don't have an account? Register")
         }
-        val error = viewModel.errorMessage
-        if (!error.isNullOrEmpty()) {
+
+        // ERROR MESSAGE
+        state.error?.let {
             Spacer(modifier = Modifier.height(8.dp))
-            Text(
-                text = error,
-                color = Color.Red // or Color.Red
-            )
+            Text(text = it, color = Color.Red)
         }
-
-
     }
 }
