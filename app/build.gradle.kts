@@ -1,3 +1,13 @@
+import java.util.Properties
+import java.io.FileInputStream
+
+val localProps = Properties().apply {
+    load(FileInputStream(rootProject.file("local.properties")))
+}
+
+android.buildFeatures.buildConfig = true
+
+
 plugins {
     id("com.google.devtools.ksp")
 
@@ -30,6 +40,10 @@ android {
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+
+        buildConfigField("String", "CLOUDINARY_CLOUD_NAME", "\"${localProps["CLOUDINARY_CLOUD_NAME"]}\"")
+        buildConfigField("String", "CLOUDINARY_API_KEY", "\"${localProps["CLOUDINARY_API_KEY"]}\"")
+        buildConfigField("String", "CLOUDINARY_API_SECRET", "\"${localProps["CLOUDINARY_API_SECRET"]}\"")
     }
 
     buildTypes {
@@ -74,6 +88,10 @@ dependencies {
     implementation(libs.maps.compose.widgets)
 
 
+
+    implementation(libs.cloudinary.android) {
+        exclude(group = "com.facebook.fresco") // Exclude Fresco to avoid conflicts with Coil and 16KB paging issue
+    }
     implementation("androidx.navigation:navigation-compose:2.7.0")
     implementation(libs.hilt.android)
     ksp("com.google.dagger:hilt-android-compiler:2.57.1")
@@ -85,6 +103,9 @@ dependencies {
 
     implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.6.2")
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.6.2")
+
+    implementation("io.coil-kt:coil-compose:2.3.0")
+
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)

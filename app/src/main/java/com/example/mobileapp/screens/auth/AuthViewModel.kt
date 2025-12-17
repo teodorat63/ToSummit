@@ -11,9 +11,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-// ---------------------
-// LOGIN UI STATE
-// ---------------------
+
 data class LoginUiState(
     val email: String = "",
     val password: String = "",
@@ -22,9 +20,7 @@ data class LoginUiState(
     val success: Boolean = false
 )
 
-// ---------------------
-// REGISTER UI STATE
-// ---------------------
+
 data class RegisterUiState(
     val email: String = "",
     val password: String = "",
@@ -37,9 +33,7 @@ data class RegisterUiState(
     val success: Boolean = false
 )
 
-// ---------------------
-// VIEWMODEL
-// ---------------------
+
 @HiltViewModel
 class AuthViewModel @Inject constructor(
     private val repository: AuthRepository
@@ -54,9 +48,6 @@ class AuthViewModel @Inject constructor(
         private set
 
 
-    // ------------------------------------
-    // LOGIN STATE UPDATERS
-    // ------------------------------------
     fun onLoginEmailChange(value: String) {
         loginState = loginState.copy(email = value)
     }
@@ -66,9 +57,6 @@ class AuthViewModel @Inject constructor(
     }
 
 
-    // ------------------------------------
-    // REGISTER STATE UPDATERS
-    // ------------------------------------
     fun onRegisterEmailChange(value: String) {
         registerState = registerState.copy(email = value)
     }
@@ -93,10 +81,6 @@ class AuthViewModel @Inject constructor(
         registerState = registerState.copy(photoUri = uri)
     }
 
-
-    // ------------------------------------
-    // LOGIN LOGIC
-    // ------------------------------------
     fun login() {
         loginState = loginState.copy(isLoading = true, error = null)
 
@@ -119,9 +103,7 @@ class AuthViewModel @Inject constructor(
         }
     }
 
-    // ------------------------------------
-    // REGISTER LOGIC
-    // ------------------------------------
+
     fun register() {
         registerState = registerState.copy(isLoading = true, error = null)
 
@@ -152,12 +134,9 @@ class AuthViewModel @Inject constructor(
     }
 
 
-    // ------------------------------------
-    // LOGOUT
-    // ------------------------------------
     fun logout() {
         repository.logout()
-        loginState = LoginUiState()     // reset login data
-        registerState = RegisterUiState() // reset register data
+        loginState = LoginUiState()
+        registerState = RegisterUiState()
     }
 }

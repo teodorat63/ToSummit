@@ -15,13 +15,10 @@ import com.google.android.gms.maps.model.LatLng
 
 @Composable
 fun MapScreen(viewModel: LocationViewModel = hiltViewModel()) {
-    // Collect location from ViewModel
     val location by viewModel.location.collectAsState()
 
-    // Camera position state for the map
     val cameraPositionState = rememberCameraPositionState()
 
-    // Animate camera to user location when it updates
     LaunchedEffect(location) {
         location?.let {
             cameraPositionState.animate(
@@ -38,7 +35,6 @@ fun MapScreen(viewModel: LocationViewModel = hiltViewModel()) {
         modifier = Modifier.fillMaxSize(),
         cameraPositionState = cameraPositionState
     ) {
-        // Marker for current location
         location?.let {
             Marker(
                 state = MarkerState(position = LatLng(it.latitude, it.longitude)),

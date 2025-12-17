@@ -1,6 +1,7 @@
 package com.example.mobileapp.di
 
 import android.content.Context
+import com.example.mobileapp.data.remote.cloudinary.CloudinaryDataSource
 import com.example.mobileapp.data.repository.AuthRepository
 import com.example.mobileapp.data.repository.LocationRepository
 import com.google.firebase.auth.FirebaseAuth
@@ -38,9 +39,9 @@ object AppModule {
     fun provideAuthRepository(
         auth: FirebaseAuth,
         firestore: FirebaseFirestore,
-        storage: FirebaseStorage
+        cloudinaryDataSource: CloudinaryDataSource
     ): AuthRepository {
-        return AuthRepository(auth, firestore, storage)
+        return AuthRepository(auth, firestore, cloudinaryDataSource)
     }
 
     // Provide LocationRepository

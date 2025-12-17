@@ -1,6 +1,8 @@
 package com.example.mobileapp.data.repository
 
 import android.net.Uri
+import com.cloudinary.Cloudinary
+import com.example.mobileapp.data.remote.cloudinary.CloudinaryDataSource
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.firestore.FirebaseFirestore
@@ -10,12 +12,9 @@ import kotlinx.coroutines.tasks.await
 class AuthRepository(
     private val firebaseAuth: FirebaseAuth,
     private val firestore: FirebaseFirestore,
-    private val storage: FirebaseStorage
+    private val cloudinaryDataSource: CloudinaryDataSource
 ) {
 
-    // ------------------------------------
-    // REGISTER USER
-    // ------------------------------------
     suspend fun register(
         email: String,
         password: String,
@@ -25,21 +24,24 @@ class AuthRepository(
         photoUri: Uri?
     ): Result<FirebaseUser> {
         return try {
-            // 1. CREATE USER IN FIREBASE AUTH
+            // 1. Create user in Firebase Auth
             val authResult = firebaseAuth.createUserWithEmailAndPassword(email, password).await()
             val user = authResult.user ?: return Result.failure(Exception("User not created"))
             val uid = user.uid
 
-            // 2. UPLOAD PROFILE PHOTO TO STORAGE
-            val photoUrl = photoUri?.let { uploadProfilePhoto(uid, it) }
+            // 2. Upload Profile Picture to Cloudinary
+            var photoUrl: String? = null
+            if (photoUri != null) {
+                photoUrl = cloudinaryDataSource.uploadAvatar(photoUri, uid)
+            }
 
-            // 3. SAVE USER INFO TO FIRESTORE
+            // 3. Save user info to Firestore
             val userData = hashMapOf(
                 "email" to email,
                 "firstName" to firstName,
                 "lastName" to lastName,
                 "phone" to phone,
-                "photoUrl" to (photoUrl ?: "")
+                "photoUrl" to photoUrl
             )
 
             firestore.collection("users").document(uid).set(userData).await()
@@ -47,13 +49,10 @@ class AuthRepository(
             Result.success(user)
 
         } catch (e: Exception) {
-            Result.failure(e)
+            Result.failure(Exception("Error adding user to Firestore: $e"))
         }
     }
 
-    // ------------------------------------
-    // LOGIN USER
-    // ------------------------------------
     suspend fun login(email: String, password: String): Result<FirebaseUser> {
         return try {
             val result = firebaseAuth
@@ -66,18 +65,8 @@ class AuthRepository(
         }
     }
 
-    // ------------------------------------
-    // IMAGE UPLOAD
-    // ------------------------------------
-    private suspend fun uploadProfilePhoto(uid: String, uri: Uri): String {
-        val ref = storage.reference.child("profilePhotos/$uid.jpg")
-        ref.putFile(uri).await()
-        return ref.downloadUrl.await().toString()
-    }
 
-    // ------------------------------------
-    // LOGOUT
-    // ------------------------------------
+
     fun logout() = firebaseAuth.signOut()
 
     val currentUser: FirebaseUser?
