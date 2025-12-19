@@ -106,6 +106,8 @@ dependencies {
 
     implementation("io.coil-kt:coil-compose:2.3.0")
 
+    implementation("com.google.accompanist:accompanist-permissions:0.31.5-beta")
+
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)

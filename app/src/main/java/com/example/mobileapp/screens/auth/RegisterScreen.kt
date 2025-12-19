@@ -48,9 +48,8 @@ fun RegisterScreen(
 
     LaunchedEffect(state.success) {
         if (state.success) {
-            // Optional: small delay to ensure Firestore writes complete
             kotlinx.coroutines.delay(500)
-            navController.navigate(Screen.DashboardScreen.route) {
+            navController.navigate(Screen.MapScreen.route) {
                 popUpTo(Screen.RegisterScreen.route) { inclusive = true }
             }
         }
