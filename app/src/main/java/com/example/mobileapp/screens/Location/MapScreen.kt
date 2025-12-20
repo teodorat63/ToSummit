@@ -29,6 +29,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.example.mobileapp.data.model.LocationType
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.model.LatLng
 import com.google.maps.android.compose.Circle
@@ -44,6 +45,8 @@ fun MapScreen(viewModel: LocationViewModel = hiltViewModel()) {
     val isDialogVisible by viewModel.isDialogVisible.collectAsState()
     val nameInput by viewModel.nameInput.collectAsState()
     val descriptionInput by viewModel.descriptionInput.collectAsState()
+    val typeInput by viewModel.typeInput.collectAsState()
+
 
     val cameraPositionState = rememberCameraPositionState()
     var hasCentered by remember { mutableStateOf(false) }
@@ -106,11 +109,14 @@ fun MapScreen(viewModel: LocationViewModel = hiltViewModel()) {
         AddLocationDialog(
             name = nameInput,
             description = descriptionInput,
+            type = typeInput,
+            onTypeChange = viewModel::onTypeChange,
             onNameChange = viewModel::onNameChange,
             onDescriptionChange = viewModel::onDescriptionChange,
             onDismiss = viewModel::hideDialog,
             onConfirm = viewModel::addLocationObject
         )
+
     }
 }
 
@@ -118,30 +124,57 @@ fun MapScreen(viewModel: LocationViewModel = hiltViewModel()) {
 fun AddLocationDialog(
     name: String,
     description: String,
+    type: LocationType,
+    onTypeChange: (LocationType) -> Unit,
     onNameChange: (String) -> Unit,
     onDescriptionChange: (String) -> Unit,
     onDismiss: () -> Unit,
     onConfirm: () -> Unit
 ) {
+    var expanded by remember { mutableStateOf(false) }
+
     AlertDialog(
         onDismissRequest = onDismiss,
         title = { Text("Add Location Object") },
         text = {
             Column(modifier = Modifier.fillMaxWidth()) {
+
+                Text("Type", style = MaterialTheme.typography.labelMedium)
+                TextButton(onClick = { expanded = true }) {
+                    Text(type.name.lowercase().replaceFirstChar { it.uppercase() })
+                }
+
+                androidx.compose.material3.DropdownMenu(
+                    expanded = expanded,
+                    onDismissRequest = { expanded = false }
+                ) {
+                    LocationType.values().forEach {
+                        androidx.compose.material3.DropdownMenuItem(
+                            text = { Text(it.name) },
+                            onClick = {
+                                onTypeChange(it)
+                                expanded = false
+                            }
+                        )
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(8.dp))
+
                 OutlinedTextField(
                     value = name,
                     onValueChange = onNameChange,
                     label = { Text("Name") },
                     singleLine = true,
-                    placeholder = { Text("Enter a name for this location") },
                     modifier = Modifier.fillMaxWidth()
                 )
+
                 Spacer(modifier = Modifier.height(8.dp))
+
                 OutlinedTextField(
                     value = description,
                     onValueChange = onDescriptionChange,
                     label = { Text("Description") },
-                    placeholder = { Text("Optional description") },
                     modifier = Modifier.fillMaxWidth()
                 )
             }
@@ -158,6 +191,7 @@ fun AddLocationDialog(
         }
     )
 }
+
 
 
 
