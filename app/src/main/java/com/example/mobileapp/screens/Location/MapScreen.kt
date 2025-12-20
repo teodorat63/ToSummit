@@ -1,6 +1,5 @@
 package com.example.mobileapp.screens.Location
 
-import android.content.res.Resources
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -41,28 +40,38 @@ import com.google.maps.android.compose.rememberCameraPositionState
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import android.net.Uri
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Row
+import androidx.compose.material.icons.filled.Face
 import androidx.compose.material3.Button
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.ui.platform.LocalContext
 import coil.compose.AsyncImage
 import getMarkerIcon
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.LazyColumn
+
+
 
 
 @Composable
 fun MapScreen(viewModel: LocationViewModel = hiltViewModel()) {
     val location by viewModel.location.collectAsState()
-    val locationObjects by viewModel.locationObjects.collectAsState()
     val isDialogVisible by viewModel.isDialogVisible.collectAsState()
     val nameInput by viewModel.nameInput.collectAsState()
     val descriptionInput by viewModel.descriptionInput.collectAsState()
     val typeInput by viewModel.typeInput.collectAsState()
     val selectedObject by viewModel.selectedObject.collectAsState()
     val photoUri by viewModel.photoUri.collectAsState()
+    val filter by viewModel.filter.collectAsState()
+    val locationObjects by viewModel.filteredLocationObjects.collectAsState()
 
 
 
     val cameraPositionState = rememberCameraPositionState()
     var hasCentered by remember { mutableStateOf(false) }
-
+    var isFilterVisible by remember { mutableStateOf(false) }
 
     val galleryLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetContent()
@@ -77,15 +86,15 @@ fun MapScreen(viewModel: LocationViewModel = hiltViewModel()) {
                 cameraPositionState.animate(
                     update = CameraUpdateFactory.newLatLngZoom(
                         LatLng(loc.latitude, loc.longitude), 17f
-                    ),
-                    durationMs = 1000
+                    )
                 )
                 hasCentered = true
             }
         }
     }
 
-    Box(modifier = Modifier.fillMaxSize()) {
+    Column(modifier = Modifier.fillMaxSize()) {
+    Box(Modifier.weight(1f)) {
         // MAP
         GoogleMap(
             modifier = Modifier.fillMaxSize(),
@@ -121,6 +130,8 @@ fun MapScreen(viewModel: LocationViewModel = hiltViewModel()) {
                 )
             }
 
+
+
         }
 
         FloatingActionButton(
@@ -133,7 +144,17 @@ fun MapScreen(viewModel: LocationViewModel = hiltViewModel()) {
         ) {
             Icon(Icons.Default.Add, contentDescription = "Add Location")
         }
+
+        FloatingActionButton(
+            onClick = { isFilterVisible = !isFilterVisible },
+            modifier = Modifier
+                .align(Alignment.BottomStart)
+                .padding(16.dp)
+        ) {
+            Icon(Icons.Default.Face, contentDescription = "Filter Locations")
+        }
     }
+
 
 
     if (isDialogVisible) {
@@ -151,7 +172,67 @@ fun MapScreen(viewModel: LocationViewModel = hiltViewModel()) {
         )
 
     }
+
+
+        if (locationObjects.isNotEmpty()) {
+            Text(
+                text = "Filtered Locations",
+                style = MaterialTheme.typography.titleMedium,
+                modifier = Modifier.padding(8.dp)
+            )
+            LazyColumn(modifier = Modifier.fillMaxWidth().weight(1f)) {
+                items(locationObjects) { obj ->
+                    FilteredLocationRow(obj) {
+                        viewModel.onMarkerClick(it) // open details dialog
+                    }
+                }
+            }
+        }
+    }
+
+    if (isFilterVisible) {
+        FilterPanel(
+            currentType = filter.type,
+            currentAuthor = filter.authorName,
+            currentStartDate = filter.dateRange?.first,
+            currentEndDate = filter.dateRange?.second,
+            onTypeChange = viewModel::setTypeFilter,
+            onAuthorChange = viewModel::setAuthorFilter,
+            onDateChange = { start, end ->
+                if (start != null && end != null) viewModel.setDateFilter(start, end)
+            },
+            onClear = {
+                viewModel.clearFilters()
+                isFilterVisible = false
+            }
+        )
+    }
 }
+
+@Composable
+fun FilteredLocationRow(locationObject: LocationObject, onClick: (LocationObject) -> Unit) {
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 8.dp, vertical = 4.dp)
+            .clickable { onClick(locationObject) },
+        elevation = CardDefaults.cardElevation(4.dp)
+    ) {
+        Row(modifier = Modifier.padding(8.dp), verticalAlignment = Alignment.CenterVertically) {
+            Text(
+                text = locationObject.title,
+                style = MaterialTheme.typography.bodyLarge,
+                modifier = Modifier.weight(1f)
+            )
+            Text(
+                text = locationObject.type.name.lowercase().replaceFirstChar { it.uppercase() },
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.primary
+            )
+        }
+    }
+}
+
 
 @Composable
 fun AddLocationDialog(

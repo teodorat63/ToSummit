@@ -14,6 +14,7 @@ mapsComposeVersion = "4.4.1"
 mapsSecret = "2.0.1"
 playServicesLocation = "21.3.0"
 cloudinaryAndroid = "3.1.1"
+foundation = "1.10.0"
 
 
 
@@ -39,6 +40,7 @@ maps-compose = { module = "com.google.maps.android:maps-compose", version.ref = 
 maps-compose-utils = { module = "com.google.maps.android:maps-compose-utils", version.ref = "mapsComposeVersion" }
 maps-compose-widgets = { module = "com.google.maps.android:maps-compose-widgets", version.ref = "mapsComposeVersion" }
 play-services-location = { group = "com.google.android.gms", name = "play-services-location", version.ref = "playServicesLocation" }
+androidx-compose-foundation = { group = "androidx.compose.foundation", name = "foundation", version.ref = "foundation" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

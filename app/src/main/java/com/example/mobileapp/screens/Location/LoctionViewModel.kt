@@ -4,6 +4,7 @@ import android.location.Location
 import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.mobileapp.data.model.LocationFilter
 import com.example.mobileapp.data.model.LocationObject
 import com.example.mobileapp.data.model.LocationType
 import com.example.mobileapp.data.remote.cloudinary.CloudinaryDataSource
@@ -16,7 +17,9 @@ import kotlinx.coroutines.launch
 import java.util.UUID
 import javax.inject.Inject
 import com.google.firebase.Timestamp
-
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.SharingStarted
 
 @HiltViewModel
 class LocationViewModel @Inject constructor(
@@ -50,6 +53,39 @@ class LocationViewModel @Inject constructor(
 
     private val _photoUri = MutableStateFlow<Uri?>(null)
     val photoUri: StateFlow<Uri?> = _photoUri
+
+    private val _filter = MutableStateFlow(LocationFilter())
+    val filter: StateFlow<LocationFilter> = _filter
+
+    val filteredLocationObjects: StateFlow<List<LocationObject>> =
+        combine(repository.locationObjects, _filter) { objects, filter ->
+            objects.filter { obj ->
+                val typeMatch = filter.type?.let { it == obj.type } ?: true
+                val authorMatch = filter.authorName?.let { obj.authorName.contains(it, ignoreCase = true) } ?: true
+                val dateMatch = filter.dateRange?.let { (start, end) ->
+                    val ts = obj.createdAt.toDate().time
+                    ts in start..end
+                } ?: true
+                typeMatch && authorMatch && dateMatch
+            }
+        }.stateIn(viewModelScope, SharingStarted.Lazily, emptyList())
+
+    // Filter setters
+    fun setTypeFilter(type: LocationType?) {
+        _filter.value = _filter.value.copy(type = type)
+    }
+
+    fun setAuthorFilter(author: String?) {
+        _filter.value = _filter.value.copy(authorName = author)
+    }
+
+    fun setDateFilter(start: Long, end: Long) {
+        _filter.value = _filter.value.copy(dateRange = start to end)
+    }
+
+    fun clearFilters() {
+        _filter.value = LocationFilter()
+    }
 
     init {
         viewModelScope.launch {
