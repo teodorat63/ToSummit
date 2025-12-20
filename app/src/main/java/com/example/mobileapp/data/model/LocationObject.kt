@@ -1,4 +1,5 @@
 package com.example.mobileapp.data.model
+import android.net.Uri
 import com.google.firebase.Timestamp
 
 data class LocationObject(
@@ -8,9 +9,9 @@ data class LocationObject(
     val longitude: Double = 0.0,
     val title: String = "",
     val description: String = "",
-    val authorId: String = "",
+    val authorName: String = "",
     val createdAt: Timestamp = Timestamp.now(),
-    val photoUrl: String = ""
+    val photoUrl: String = "",
 )
 
 enum class LocationType {

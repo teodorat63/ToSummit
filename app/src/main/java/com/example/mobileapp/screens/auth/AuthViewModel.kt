@@ -6,33 +6,13 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.mobileapp.data.model.LoginUiState
+import com.example.mobileapp.data.model.RegisterUiState
+import com.example.mobileapp.data.model.User
 import com.example.mobileapp.data.repository.AuthRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
-
-
-data class LoginUiState(
-    val email: String = "",
-    val password: String = "",
-    val isLoading: Boolean = false,
-    val error: String? = null,
-    val success: Boolean = false
-)
-
-
-data class RegisterUiState(
-    val email: String = "",
-    val password: String = "",
-    val firstName: String = "",
-    val lastName: String = "",
-    val phone: String = "",
-    val photoUri: Uri? = null,
-    val isLoading: Boolean = false,
-    val error: String? = null,
-    val success: Boolean = false
-)
-
 
 @HiltViewModel
 class AuthViewModel @Inject constructor(
@@ -103,17 +83,21 @@ class AuthViewModel @Inject constructor(
         }
     }
 
-
     fun register() {
         registerState = registerState.copy(isLoading = true, error = null)
 
         viewModelScope.launch {
-            val result = repository.register(
+            val user = User(
                 email = registerState.email,
-                password = registerState.password,
                 firstName = registerState.firstName,
                 lastName = registerState.lastName,
                 phone = registerState.phone,
+                points = 0
+            )
+
+            val result = repository.register(
+                user = user,
+                password = registerState.password,
                 photoUri = registerState.photoUri
             )
 

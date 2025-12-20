@@ -40,6 +40,44 @@ class CloudinaryDataSource @Inject constructor(
                 .dispatch()
         }
 
+    suspend fun uploadLocationImage(
+        uri: Uri,
+        locationId: String
+    ): String? =
+        suspendCoroutine { cont ->
+
+            MediaManager.get().upload(uri)
+                .option("upload_preset", "android_preset")
+                .option("folder", "locations")
+                .option("public_id", locationId)
+                .callback(object : UploadCallback {
+
+                    override fun onSuccess(
+                        requestId: String?,
+                        resultData: MutableMap<Any?, Any?>?
+                    ) {
+                        cont.resume(resultData?.get("secure_url") as? String)
+                    }
+
+                    override fun onError(
+                        requestId: String?,
+                        error: ErrorInfo?
+                    ) {
+                        Log.e("Cloudinary", error?.description ?: "Upload error")
+                        cont.resume(null)
+                    }
+
+                    override fun onReschedule(requestId: String?, error: ErrorInfo?) {}
+                    override fun onStart(requestId: String?) {}
+                    override fun onProgress(
+                        requestId: String?,
+                        bytes: Long,
+                        totalBytes: Long
+                    ) {}
+                })
+                .dispatch()
+        }
+
 
 }
 

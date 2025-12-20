@@ -28,12 +28,14 @@ import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import coil.compose.AsyncImage
 import com.example.mobileapp.screens.Screen
 
 @Composable
 fun RegisterScreen(
-    viewModel: AuthViewModel,
+    viewModel: AuthViewModel = hiltViewModel(),
     navController: NavController
 ) {
     val state = viewModel.registerState
@@ -125,17 +127,12 @@ fun RegisterScreen(
         // Show selected photo preview
         state.photoUri?.let { uri ->
             Spacer(modifier = Modifier.height(16.dp))
-            val bitmap = if (Build.VERSION.SDK_INT < 28) {
-                MediaStore.Images.Media.getBitmap(context.contentResolver, uri)
-            } else {
-                val source = ImageDecoder.createSource(context.contentResolver, uri)
-                ImageDecoder.decodeBitmap(source)
-            }
-            Image(
-                bitmap = bitmap.asImageBitmap(),
+            AsyncImage(
+                model = uri,
                 contentDescription = null,
                 modifier = Modifier.size(120.dp)
             )
+
         }
 
         Spacer(modifier = Modifier.height(16.dp))

@@ -29,6 +29,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.example.mobileapp.data.model.LocationObject
 import com.example.mobileapp.data.model.LocationType
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.model.LatLng
@@ -37,6 +38,14 @@ import com.google.maps.android.compose.GoogleMap
 import com.google.maps.android.compose.Marker
 import com.google.maps.android.compose.MarkerState
 import com.google.maps.android.compose.rememberCameraPositionState
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import android.net.Uri
+import androidx.compose.material3.Button
+import androidx.compose.ui.platform.LocalContext
+import coil.compose.AsyncImage
+import getMarkerIcon
+
 
 @Composable
 fun MapScreen(viewModel: LocationViewModel = hiltViewModel()) {
@@ -46,10 +55,20 @@ fun MapScreen(viewModel: LocationViewModel = hiltViewModel()) {
     val nameInput by viewModel.nameInput.collectAsState()
     val descriptionInput by viewModel.descriptionInput.collectAsState()
     val typeInput by viewModel.typeInput.collectAsState()
+    val selectedObject by viewModel.selectedObject.collectAsState()
+    val photoUri by viewModel.photoUri.collectAsState()
+
 
 
     val cameraPositionState = rememberCameraPositionState()
     var hasCentered by remember { mutableStateOf(false) }
+
+
+    val galleryLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.GetContent()
+    ) { uri: Uri? ->
+        viewModel.onPhotoSelected(uri)
+    }
 
     // Animate camera only once on first location
     LaunchedEffect(location) {
@@ -73,7 +92,6 @@ fun MapScreen(viewModel: LocationViewModel = hiltViewModel()) {
             cameraPositionState = cameraPositionState
         ) {
             location?.let { loc ->
-                // User location: visible, contrasting circle
                 Circle(
                     center = LatLng(loc.latitude, loc.longitude),
                     radius = 1.0,
@@ -87,9 +105,22 @@ fun MapScreen(viewModel: LocationViewModel = hiltViewModel()) {
                 Marker(
                     state = MarkerState(LatLng(obj.latitude, obj.longitude)),
                     title = obj.title,
-                    snippet = obj.description
+                    snippet = obj.description,
+                    icon = getMarkerIcon(context = LocalContext.current, type = obj.type),
+                    onClick = {
+                        viewModel.onMarkerClick(obj)
+                        true
+                    }
                 )
             }
+
+            selectedObject?.let { obj ->
+                LocationDetailsDialog(
+                    locationObject = obj,
+                    onDismiss = viewModel::clearSelectedObject
+                )
+            }
+
         }
 
         FloatingActionButton(
@@ -110,6 +141,8 @@ fun MapScreen(viewModel: LocationViewModel = hiltViewModel()) {
             name = nameInput,
             description = descriptionInput,
             type = typeInput,
+            photoUri = photoUri,
+            onPickPhoto = { galleryLauncher.launch("image/*") },
             onTypeChange = viewModel::onTypeChange,
             onNameChange = viewModel::onNameChange,
             onDescriptionChange = viewModel::onDescriptionChange,
@@ -125,6 +158,8 @@ fun AddLocationDialog(
     name: String,
     description: String,
     type: LocationType,
+    photoUri: Uri?,
+    onPickPhoto: () -> Unit,
     onTypeChange: (LocationType) -> Unit,
     onNameChange: (String) -> Unit,
     onDescriptionChange: (String) -> Unit,
@@ -177,6 +212,25 @@ fun AddLocationDialog(
                     label = { Text("Description") },
                     modifier = Modifier.fillMaxWidth()
                 )
+
+                Button(
+                    onClick = onPickPhoto,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text("Choose Photo")
+                }
+
+                photoUri?.let { uri ->
+                    Spacer(modifier = Modifier.height(8.dp))
+                    AsyncImage(
+                        model = uri,
+                        contentDescription = "Selected photo",
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(180.dp)
+                    )
+                }
+
             }
         },
         confirmButton = {
@@ -191,6 +245,57 @@ fun AddLocationDialog(
         }
     )
 }
+
+@Composable
+fun LocationDetailsDialog(
+    locationObject: LocationObject,
+    onDismiss: () -> Unit
+) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = {
+            Text(locationObject.title)
+        },
+        text = {
+            Column(modifier = Modifier.fillMaxWidth()) {
+
+                DetailRow("Type", locationObject.type.name)
+                DetailRow("Description", locationObject.description)
+
+                DetailRow("Author", locationObject.authorName)
+                DetailRow(
+                    "Created",
+                    locationObject.createdAt.toDate().toString()
+                )
+
+                if (locationObject.photoUrl.isNotBlank()) {
+                    Spacer(modifier = Modifier.height(8.dp))
+                    AsyncImage(
+                        model = locationObject.photoUrl,
+                        contentDescription = "Location photo",
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(200.dp)
+                    )
+                }
+
+            }
+        },
+        confirmButton = {
+            TextButton(onClick = onDismiss) {
+                Text("Close")
+            }
+        }
+    )
+}
+@Composable
+fun DetailRow(label: String, value: String) {
+    Column(modifier = Modifier.padding(vertical = 4.dp)) {
+        Text(label, style = MaterialTheme.typography.labelMedium)
+        Text(value, style = MaterialTheme.typography.bodyMedium)
+    }
+}
+
 
 
 

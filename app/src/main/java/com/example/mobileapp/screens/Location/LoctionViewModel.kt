@@ -1,10 +1,13 @@
 package com.example.mobileapp.screens.Location
 
 import android.location.Location
+import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.mobileapp.data.model.LocationObject
 import com.example.mobileapp.data.model.LocationType
+import com.example.mobileapp.data.remote.cloudinary.CloudinaryDataSource
+import com.example.mobileapp.data.repository.AuthRepository
 import com.example.mobileapp.data.repository.LocationRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -17,7 +20,11 @@ import com.google.firebase.Timestamp
 
 @HiltViewModel
 class LocationViewModel @Inject constructor(
-    private val repository: LocationRepository
+    private val repository: LocationRepository,
+    private val cloudinaryDataSource: CloudinaryDataSource,
+    private val authRepository: AuthRepository
+
+
 ) : ViewModel() {
 
     val locationObjects = repository.locationObjects
@@ -38,6 +45,12 @@ class LocationViewModel @Inject constructor(
     private val _typeInput = MutableStateFlow(LocationType.OTHER)
     val typeInput: StateFlow<LocationType> = _typeInput
 
+    private val _selectedObject = MutableStateFlow<LocationObject?>(null)
+    val selectedObject: StateFlow<LocationObject?> = _selectedObject
+
+    private val _photoUri = MutableStateFlow<Uri?>(null)
+    val photoUri: StateFlow<Uri?> = _photoUri
+
     init {
         viewModelScope.launch {
             repository.getLocationUpdates().collect {
@@ -56,31 +69,59 @@ class LocationViewModel @Inject constructor(
         _typeInput.value = newType
     }
 
+    fun onMarkerClick(obj: LocationObject) {
+        _selectedObject.value = obj
+    }
+
+    fun onPhotoSelected(uri: Uri?) {
+        _photoUri.value = uri
+
+    }
+
+    fun clearSelectedObject() {
+        _selectedObject.value = null
+    }
+
     fun addLocationObject() {
         val loc = _location.value ?: return
         val name = _nameInput.value
         if (name.isBlank()) return
 
-        val newObject = LocationObject(
-            id = UUID.randomUUID().toString(),
-            type = _typeInput.value,
-            latitude = loc.latitude,
-            longitude = loc.longitude,
-            title = name,
-            description = _descriptionInput.value,
-            authorId = "anonymous", // 🔹 replace later with FirebaseAuth UID
-            createdAt = Timestamp.now(),
-            photoUrl = ""
-        )
+        viewModelScope.launch {
 
-        repository.addLocationObject(newObject)
+            val locationId = UUID.randomUUID().toString()
 
-        // Reset inputs
-        _nameInput.value = ""
-        _descriptionInput.value = ""
-        _typeInput.value = LocationType.OTHER
-        _isDialogVisible.value = false
+            val imageUrl = _photoUri.value?.let { uri ->
+                cloudinaryDataSource.uploadLocationImage(uri, locationId)
+            } ?: ""
+
+            // Get current user
+            val currentUser = authRepository.currentUser
+            val userName = currentUser?.email ?: "Anonymous"
+
+            val newObject = LocationObject(
+                id = locationId,
+                type = _typeInput.value,
+                latitude = loc.latitude,
+                longitude = loc.longitude,
+                title = name,
+                description = _descriptionInput.value,
+                authorName = userName,
+                createdAt = Timestamp.now(),
+                photoUrl = imageUrl
+            )
+
+            repository.addLocationObject(newObject)
+
+            // Reset state
+            _nameInput.value = ""
+            _descriptionInput.value = ""
+            _photoUri.value = null
+            _typeInput.value = LocationType.OTHER
+            _isDialogVisible.value = false
+        }
     }
+
 
 }
 

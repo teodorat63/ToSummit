@@ -2,6 +2,7 @@ package com.example.mobileapp.data.repository
 
 import android.net.Uri
 import com.cloudinary.Cloudinary
+import com.example.mobileapp.data.model.User
 import com.example.mobileapp.data.remote.cloudinary.CloudinaryDataSource
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
@@ -16,42 +17,34 @@ class AuthRepository(
 ) {
 
     suspend fun register(
-        email: String,
+        user: User,
         password: String,
-        firstName: String,
-        lastName: String,
-        phone: String,
         photoUri: Uri?
     ): Result<FirebaseUser> {
         return try {
             // 1. Create user in Firebase Auth
-            val authResult = firebaseAuth.createUserWithEmailAndPassword(email, password).await()
-            val user = authResult.user ?: return Result.failure(Exception("User not created"))
-            val uid = user.uid
+            val authResult = firebaseAuth.createUserWithEmailAndPassword(user.email, password).await()
+            val firebaseUser = authResult.user ?: return Result.failure(Exception("User not created"))
+            val uid = firebaseUser.uid
 
             // 2. Upload Profile Picture to Cloudinary
-            var photoUrl: String? = null
-            if (photoUri != null) {
-                photoUrl = cloudinaryDataSource.uploadAvatar(photoUri, uid)
-            }
+            val photoUrl = photoUri?.let { cloudinaryDataSource.uploadAvatar(it, uid) }
 
-            // 3. Save user info to Firestore
-            val userData = hashMapOf(
-                "email" to email,
-                "firstName" to firstName,
-                "lastName" to lastName,
-                "phone" to phone,
-                "photoUrl" to photoUrl
-            )
+            // 3. Create full user object with uid and photoUrl
+            val newUser = user.copy(uid = uid, photoUrl = photoUrl)
 
-            firestore.collection("users").document(uid).set(userData).await()
+            // 4. Save to Firestore
+            firestore.collection("users")
+                .document(uid)
+                .set(newUser)
+                .await()
 
-            Result.success(user)
-
+            Result.success(firebaseUser)
         } catch (e: Exception) {
             Result.failure(Exception("Error adding user to Firestore: $e"))
         }
     }
+
 
     suspend fun login(email: String, password: String): Result<FirebaseUser> {
         return try {
@@ -64,8 +57,6 @@ class AuthRepository(
             Result.failure(e)
         }
     }
-
-
 
     fun logout() = firebaseAuth.signOut()
 

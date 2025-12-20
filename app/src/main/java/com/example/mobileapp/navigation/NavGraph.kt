@@ -20,7 +20,7 @@ fun NavGraph() {
 
     NavHost(
         navController = navController,
-        startDestination = "permissions"
+        startDestination = Screen.LoginScreen.route
     ) {
         composable(Screen.LoginScreen.route) {
             val authViewModel: AuthViewModel = hiltViewModel()
