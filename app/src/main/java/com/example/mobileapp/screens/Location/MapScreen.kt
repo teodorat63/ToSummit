@@ -1,21 +1,11 @@
 package com.example.mobileapp.screens.Location
 
+import android.net.Uri
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.FloatingActionButton
-import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -23,36 +13,13 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.example.mobileapp.data.model.LocationObject
-import com.example.mobileapp.data.model.LocationType
+import com.example.mobileapp.screens.Location.filters.FilteredLocationList
+import com.example.mobileapp.screens.Location.dialogs.AddLocationFullScreenDialog
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.model.LatLng
-import com.google.maps.android.compose.Circle
-import com.google.maps.android.compose.GoogleMap
-import com.google.maps.android.compose.Marker
-import com.google.maps.android.compose.MarkerState
 import com.google.maps.android.compose.rememberCameraPositionState
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
-import android.net.Uri
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Row
-import androidx.compose.material.icons.filled.Face
-import androidx.compose.material3.Button
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
-import androidx.compose.ui.platform.LocalContext
-import coil.compose.AsyncImage
-import getMarkerIcon
-import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.lazy.LazyColumn
-
-
 
 
 @Composable
@@ -66,6 +33,8 @@ fun MapScreen(viewModel: LocationViewModel = hiltViewModel()) {
     val photoUri by viewModel.photoUri.collectAsState()
     val filter by viewModel.filter.collectAsState()
     val locationObjects by viewModel.filteredLocationObjects.collectAsState()
+    val isListVisible by viewModel.isListVisible.collectAsState()
+
 
 
 
@@ -79,7 +48,6 @@ fun MapScreen(viewModel: LocationViewModel = hiltViewModel()) {
         viewModel.onPhotoSelected(uri)
     }
 
-    // Animate camera only once on first location
     LaunchedEffect(location) {
         location?.let { loc ->
             if (!hasCentered) {
@@ -95,70 +63,23 @@ fun MapScreen(viewModel: LocationViewModel = hiltViewModel()) {
 
     Column(modifier = Modifier.fillMaxSize()) {
     Box(Modifier.weight(1f)) {
-        // MAP
-        GoogleMap(
+        MapContent(
             modifier = Modifier.fillMaxSize(),
-            cameraPositionState = cameraPositionState
-        ) {
-            location?.let { loc ->
-                Circle(
-                    center = LatLng(loc.latitude, loc.longitude),
-                    radius = 1.0,
-                    strokeColor = Color.Red,
-                    strokeWidth = 1f,
-                    fillColor = Color.Red
-                )
-            }
-
-            locationObjects.forEach { obj ->
-                Marker(
-                    state = MarkerState(LatLng(obj.latitude, obj.longitude)),
-                    title = obj.title,
-                    snippet = obj.description,
-                    icon = getMarkerIcon(context = LocalContext.current, type = obj.type),
-                    onClick = {
-                        viewModel.onMarkerClick(obj)
-                        true
-                    }
-                )
-            }
-
-            selectedObject?.let { obj ->
-                LocationDetailsDialog(
-                    locationObject = obj,
-                    onDismiss = viewModel::clearSelectedObject
-                )
-            }
-
-
-
-        }
-
-        FloatingActionButton(
-            onClick = { viewModel.showDialog() },
-            modifier = Modifier
-                .align(Alignment.BottomEnd)
-                .padding(16.dp),
-            containerColor = MaterialTheme.colorScheme.primary,
-            contentColor = MaterialTheme.colorScheme.onPrimary
-        ) {
-            Icon(Icons.Default.Add, contentDescription = "Add Location")
-        }
-
-        FloatingActionButton(
-            onClick = { isFilterVisible = !isFilterVisible },
-            modifier = Modifier
-                .align(Alignment.BottomStart)
-                .padding(16.dp)
-        ) {
-            Icon(Icons.Default.Face, contentDescription = "Filter Locations")
-        }
+            cameraPositionState = cameraPositionState,
+            location = location,
+            locationObjects = locationObjects,
+            selectedObject = selectedObject,
+            onMarkerClick = viewModel::onMarkerClick,
+            onDismissDetails = viewModel::clearSelectedObject
+        )
+        MapActions(
+            onAddClick = viewModel::showDialog,
+            onFilterClick = { isFilterVisible = !isFilterVisible },
+            onListClick =  viewModel::toggleListVisibility
+        )
     }
-
-
-
     if (isDialogVisible) {
-        AddLocationDialog(
+        AddLocationFullScreenDialog(
             name = nameInput,
             description = descriptionInput,
             type = typeInput,
@@ -174,20 +95,6 @@ fun MapScreen(viewModel: LocationViewModel = hiltViewModel()) {
     }
 
 
-        if (locationObjects.isNotEmpty()) {
-            Text(
-                text = "Filtered Locations",
-                style = MaterialTheme.typography.titleMedium,
-                modifier = Modifier.padding(8.dp)
-            )
-            LazyColumn(modifier = Modifier.fillMaxWidth().weight(1f)) {
-                items(locationObjects) { obj ->
-                    FilteredLocationRow(obj) {
-                        viewModel.onMarkerClick(it) // open details dialog
-                    }
-                }
-            }
-        }
     }
 
     if (isFilterVisible) {
@@ -206,180 +113,14 @@ fun MapScreen(viewModel: LocationViewModel = hiltViewModel()) {
                 isFilterVisible = false
             }
         )
+
+    }
+
+    if (isListVisible) { // Observed from ViewModel
+        FilteredLocationList(
+            locations = locationObjects,
+            onItemClick = viewModel::onMarkerClick,
+            onClose =  viewModel::toggleListVisibility
+        )
     }
 }
-
-@Composable
-fun FilteredLocationRow(locationObject: LocationObject, onClick: (LocationObject) -> Unit) {
-    Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 8.dp, vertical = 4.dp)
-            .clickable { onClick(locationObject) },
-        elevation = CardDefaults.cardElevation(4.dp)
-    ) {
-        Row(modifier = Modifier.padding(8.dp), verticalAlignment = Alignment.CenterVertically) {
-            Text(
-                text = locationObject.title,
-                style = MaterialTheme.typography.bodyLarge,
-                modifier = Modifier.weight(1f)
-            )
-            Text(
-                text = locationObject.type.name.lowercase().replaceFirstChar { it.uppercase() },
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.primary
-            )
-        }
-    }
-}
-
-
-@Composable
-fun AddLocationDialog(
-    name: String,
-    description: String,
-    type: LocationType,
-    photoUri: Uri?,
-    onPickPhoto: () -> Unit,
-    onTypeChange: (LocationType) -> Unit,
-    onNameChange: (String) -> Unit,
-    onDescriptionChange: (String) -> Unit,
-    onDismiss: () -> Unit,
-    onConfirm: () -> Unit
-) {
-    var expanded by remember { mutableStateOf(false) }
-
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        title = { Text("Add Location Object") },
-        text = {
-            Column(modifier = Modifier.fillMaxWidth()) {
-
-                Text("Type", style = MaterialTheme.typography.labelMedium)
-                TextButton(onClick = { expanded = true }) {
-                    Text(type.name.lowercase().replaceFirstChar { it.uppercase() })
-                }
-
-                androidx.compose.material3.DropdownMenu(
-                    expanded = expanded,
-                    onDismissRequest = { expanded = false }
-                ) {
-                    LocationType.values().forEach {
-                        androidx.compose.material3.DropdownMenuItem(
-                            text = { Text(it.name) },
-                            onClick = {
-                                onTypeChange(it)
-                                expanded = false
-                            }
-                        )
-                    }
-                }
-
-                Spacer(modifier = Modifier.height(8.dp))
-
-                OutlinedTextField(
-                    value = name,
-                    onValueChange = onNameChange,
-                    label = { Text("Name") },
-                    singleLine = true,
-                    modifier = Modifier.fillMaxWidth()
-                )
-
-                Spacer(modifier = Modifier.height(8.dp))
-
-                OutlinedTextField(
-                    value = description,
-                    onValueChange = onDescriptionChange,
-                    label = { Text("Description") },
-                    modifier = Modifier.fillMaxWidth()
-                )
-
-                Button(
-                    onClick = onPickPhoto,
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    Text("Choose Photo")
-                }
-
-                photoUri?.let { uri ->
-                    Spacer(modifier = Modifier.height(8.dp))
-                    AsyncImage(
-                        model = uri,
-                        contentDescription = "Selected photo",
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(180.dp)
-                    )
-                }
-
-            }
-        },
-        confirmButton = {
-            TextButton(onClick = onConfirm) {
-                Text("Add")
-            }
-        },
-        dismissButton = {
-            TextButton(onClick = onDismiss) {
-                Text("Cancel")
-            }
-        }
-    )
-}
-
-@Composable
-fun LocationDetailsDialog(
-    locationObject: LocationObject,
-    onDismiss: () -> Unit
-) {
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        title = {
-            Text(locationObject.title)
-        },
-        text = {
-            Column(modifier = Modifier.fillMaxWidth()) {
-
-                DetailRow("Type", locationObject.type.name)
-                DetailRow("Description", locationObject.description)
-
-                DetailRow("Author", locationObject.authorName)
-                DetailRow(
-                    "Created",
-                    locationObject.createdAt.toDate().toString()
-                )
-
-                if (locationObject.photoUrl.isNotBlank()) {
-                    Spacer(modifier = Modifier.height(8.dp))
-                    AsyncImage(
-                        model = locationObject.photoUrl,
-                        contentDescription = "Location photo",
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(200.dp)
-                    )
-                }
-
-            }
-        },
-        confirmButton = {
-            TextButton(onClick = onDismiss) {
-                Text("Close")
-            }
-        }
-    )
-}
-@Composable
-fun DetailRow(label: String, value: String) {
-    Column(modifier = Modifier.padding(vertical = 4.dp)) {
-        Text(label, style = MaterialTheme.typography.labelMedium)
-        Text(value, style = MaterialTheme.typography.bodyMedium)
-    }
-}
-
-
-
-
-
-
-

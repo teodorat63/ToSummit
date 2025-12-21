@@ -80,6 +80,7 @@ dependencies {
 
         implementation(libs.play.services.location)
     implementation(libs.androidx.compose.foundation)
+    implementation(libs.androidx.compose.foundation.layout)
     // Google Maps Compose library
     val mapsComposeVersion = "4.4.1"
     implementation(libs.maps.compose)
@@ -104,7 +105,7 @@ dependencies {
 
     implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.6.2")
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.6.2")
-
+    implementation("androidx.compose.material3:material3:1.2.0")
     implementation("io.coil-kt:coil-compose:2.3.0")
 
     implementation("com.google.accompanist:accompanist-permissions:0.31.5-beta")

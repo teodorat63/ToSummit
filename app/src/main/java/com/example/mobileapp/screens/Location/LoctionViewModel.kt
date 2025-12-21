@@ -57,6 +57,13 @@ class LocationViewModel @Inject constructor(
     private val _filter = MutableStateFlow(LocationFilter())
     val filter: StateFlow<LocationFilter> = _filter
 
+    private val _isListVisible = MutableStateFlow(false)
+    val isListVisible: StateFlow<Boolean> = _isListVisible
+
+    fun toggleListVisibility() {
+        _isListVisible.value = !_isListVisible.value
+    }
+
     val filteredLocationObjects: StateFlow<List<LocationObject>> =
         combine(repository.locationObjects, _filter) { objects, filter ->
             objects.filter { obj ->
