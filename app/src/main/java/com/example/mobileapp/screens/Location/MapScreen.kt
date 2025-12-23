@@ -15,8 +15,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.example.mobileapp.screens.Location.filters.FilteredLocationList
 import com.example.mobileapp.screens.Location.dialogs.AddLocationFullScreenDialog
+import com.example.mobileapp.screens.Location.filters.FilteredLocationList
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.model.LatLng
 import com.google.maps.android.compose.rememberCameraPositionState
@@ -75,8 +75,7 @@ fun MapScreen(viewModel: LocationViewModel = hiltViewModel()) {
         MapActions(
             onAddClick = viewModel::showDialog,
             onFilterClick = { isFilterVisible = !isFilterVisible },
-            onListClick =  viewModel::toggleListVisibility
-        )
+            onListClick =  viewModel::toggleListVisibility)
     }
     if (isDialogVisible) {
         AddLocationFullScreenDialog(

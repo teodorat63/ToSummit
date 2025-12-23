@@ -1,5 +1,5 @@
-import java.util.Properties
 import java.io.FileInputStream
+import java.util.Properties
 
 val localProps = Properties().apply {
     load(FileInputStream(rootProject.file("local.properties")))
@@ -81,6 +81,7 @@ dependencies {
         implementation(libs.play.services.location)
     implementation(libs.androidx.compose.foundation)
     implementation(libs.androidx.compose.foundation.layout)
+    implementation(libs.androidx.appcompat)
     // Google Maps Compose library
     val mapsComposeVersion = "4.4.1"
     implementation(libs.maps.compose)
@@ -102,6 +103,7 @@ dependencies {
     implementation("com.google.firebase:firebase-auth")
     implementation("com.google.firebase:firebase-firestore")
     implementation("com.google.firebase:firebase-storage")
+    implementation("androidx.compose.material:material-icons-extended")
 
     implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.6.2")
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.6.2")

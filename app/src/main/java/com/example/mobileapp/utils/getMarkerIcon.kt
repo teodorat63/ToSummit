@@ -14,7 +14,6 @@ fun getMarkerIcon(
     type: LocationType,
     scale: Float = 1.5f
 ): BitmapDescriptor {
-    // Drawable for the icon
     val drawableRes = when(type) {
         LocationType.SUMMIT -> R.drawable.ic_marker_summit
         LocationType.WATER -> R.drawable.ic_marker_water
@@ -26,16 +25,13 @@ fun getMarkerIcon(
     val drawable = ContextCompat.getDrawable(context, drawableRes)!!.mutate()
     DrawableCompat.setTint(drawable, ContextCompat.getColor(context, android.R.color.white))
 
-    // Circle color based on type
     val circleColor = getLocationTypeColor(type)
 
 
-    // Sizes
     val iconWidth = (drawable.intrinsicWidth * 0.6f * scale).toInt()  // smaller icon inside
     val iconHeight = (drawable.intrinsicHeight * 0.6f * scale).toInt()
     val outerSize = Math.max(iconWidth, iconHeight) * 2  // larger circle
 
-    // Create bitmap
     val bitmap = Bitmap.createBitmap(outerSize, outerSize, Bitmap.Config.ARGB_8888)
     val canvas = Canvas(bitmap)
 

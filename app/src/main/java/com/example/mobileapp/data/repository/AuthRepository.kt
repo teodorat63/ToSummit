@@ -1,13 +1,11 @@
 package com.example.mobileapp.data.repository
 
 import android.net.Uri
-import com.cloudinary.Cloudinary
 import com.example.mobileapp.data.model.User
 import com.example.mobileapp.data.remote.cloudinary.CloudinaryDataSource
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.storage.FirebaseStorage
 import kotlinx.coroutines.tasks.await
 
 class AuthRepository(
@@ -15,6 +13,10 @@ class AuthRepository(
     private val firestore: FirebaseFirestore,
     private val cloudinaryDataSource: CloudinaryDataSource
 ) {
+
+
+    val currentUser: FirebaseUser?
+        get() = firebaseAuth.currentUser
 
     suspend fun register(
         user: User,
@@ -60,6 +62,4 @@ class AuthRepository(
 
     fun logout() = firebaseAuth.signOut()
 
-    val currentUser: FirebaseUser?
-        get() = firebaseAuth.currentUser
 }

@@ -24,7 +24,8 @@ import getLocationTypeColor
 fun MapActions(
     onAddClick: () -> Unit,
     onFilterClick: () -> Unit,
-    onListClick: () -> Unit
+    onListClick: () -> Unit,
+
 ) {
     Box(modifier = Modifier.fillMaxSize()) {
 
@@ -66,6 +67,10 @@ fun MapActions(
         ) {
             Icon(Icons.AutoMirrored.Filled.List, contentDescription = "List Locations", tint = Color.White)
         }
+
+
     }
 }
+
+
 

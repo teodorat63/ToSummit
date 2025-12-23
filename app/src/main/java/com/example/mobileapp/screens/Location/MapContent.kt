@@ -7,7 +7,11 @@ import androidx.compose.ui.platform.LocalContext
 import com.example.mobileapp.data.model.LocationObject
 import com.example.mobileapp.screens.Location.dialogs.LocationDetailsBottomSheet
 import com.google.android.gms.maps.model.LatLng
-import com.google.maps.android.compose.*
+import com.google.maps.android.compose.CameraPositionState
+import com.google.maps.android.compose.Circle
+import com.google.maps.android.compose.GoogleMap
+import com.google.maps.android.compose.Marker
+import com.google.maps.android.compose.MarkerState
 import getMarkerIcon
 
 @Composable
@@ -25,7 +29,6 @@ fun MapContent(
         cameraPositionState = cameraPositionState
     ) {
         location?.let {
-            // Outer white outline
             Circle(
                 center = LatLng(it.latitude, it.longitude),
                 radius = 3.0, // small radius in meters
