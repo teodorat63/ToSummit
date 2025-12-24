@@ -1,4 +1,4 @@
-package com.example.mobileapp.screens.Location
+package com.example.mobileapp.screens.location
 
 import android.location.Location
 import android.net.Uri
@@ -30,7 +30,6 @@ class LocationViewModel @Inject constructor(
 
 ) : ViewModel() {
 
-    val locationObjects = repository.locationObjects
 
     private val _location = MutableStateFlow<Location?>(null)
     val location: StateFlow<Location?> = _location
@@ -56,13 +55,6 @@ class LocationViewModel @Inject constructor(
 
     private val _filter = MutableStateFlow(LocationFilter())
     val filter: StateFlow<LocationFilter> = _filter
-
-    private val _isListVisible = MutableStateFlow(false)
-    val isListVisible: StateFlow<Boolean> = _isListVisible
-
-    fun toggleListVisibility() {
-        _isListVisible.value = !_isListVisible.value
-    }
 
     val filteredLocationObjects: StateFlow<List<LocationObject>> =
         combine(repository.locationObjects, _filter) { objects, filter ->
@@ -101,30 +93,23 @@ class LocationViewModel @Inject constructor(
             }
         }
     }
-
     fun showDialog() { _isDialogVisible.value = true }
     fun hideDialog() { _isDialogVisible.value = false }
-
     fun onNameChange(newValue: String) { _nameInput.value = newValue }
     fun onDescriptionChange(newValue: String) { _descriptionInput.value = newValue }
-
     fun onTypeChange(newType: LocationType) {
         _typeInput.value = newType
     }
-
     fun onMarkerClick(obj: LocationObject) {
         _selectedObject.value = obj
     }
-
     fun onPhotoSelected(uri: Uri?) {
         _photoUri.value = uri
 
     }
-
     fun clearSelectedObject() {
         _selectedObject.value = null
     }
-
     fun addLocationObject() {
         val loc = _location.value ?: return
         val name = _nameInput.value
@@ -141,45 +126,6 @@ class LocationViewModel @Inject constructor(
             // Get current user
             val currentUser = authRepository.currentUser
             val userName = currentUser?.email ?: "Anonymous"
-
-            val newObject = LocationObject(
-                id = locationId,
-                type = _typeInput.value,
-                latitude = loc.latitude,
-                longitude = loc.longitude,
-                title = name,
-                description = _descriptionInput.value,
-                authorName = userName,
-                createdAt = Timestamp.now(),
-                photoUrl = imageUrl
-            )
-
-            repository.addLocationObject(newObject)
-
-            // Reset state
-            _nameInput.value = ""
-            _descriptionInput.value = ""
-            _photoUri.value = null
-            _typeInput.value = LocationType.OTHER
-            _isDialogVisible.value = false
-        }
-    }
-
-    fun addLocationObjectAuthor(customAuthorName: String) {
-        val loc = _location.value ?: return
-        val name = _nameInput.value
-        if (name.isBlank()) return
-
-        viewModelScope.launch {
-
-            val locationId = UUID.randomUUID().toString()
-
-            val imageUrl = _photoUri.value?.let { uri ->
-                cloudinaryDataSource.uploadLocationImage(uri, locationId)
-            } ?: ""
-
-
-            val userName = customAuthorName
 
             val newObject = LocationObject(
                 id = locationId,

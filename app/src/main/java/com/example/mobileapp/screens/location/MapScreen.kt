@@ -1,4 +1,4 @@
-package com.example.mobileapp.screens.Location
+package com.example.mobileapp.screens.location
 
 import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -15,8 +15,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.example.mobileapp.screens.Location.dialogs.AddLocationFullScreenDialog
-import com.example.mobileapp.screens.Location.filters.FilteredLocationList
+import com.example.mobileapp.screens.location.dialogs.AddLocationFullScreenDialog
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.model.LatLng
 import com.google.maps.android.compose.rememberCameraPositionState
@@ -33,7 +32,6 @@ fun MapScreen(viewModel: LocationViewModel = hiltViewModel()) {
     val photoUri by viewModel.photoUri.collectAsState()
     val filter by viewModel.filter.collectAsState()
     val locationObjects by viewModel.filteredLocationObjects.collectAsState()
-    val isListVisible by viewModel.isListVisible.collectAsState()
 
 
 
@@ -74,9 +72,8 @@ fun MapScreen(viewModel: LocationViewModel = hiltViewModel()) {
         )
         MapActions(
             onAddClick = viewModel::showDialog,
-            onFilterClick = { isFilterVisible = !isFilterVisible },
-            onListClick =  viewModel::toggleListVisibility)
-    }
+            onFilterClick = { isFilterVisible = !isFilterVisible })
+        }
     if (isDialogVisible) {
         AddLocationFullScreenDialog(
             name = nameInput,
@@ -115,11 +112,5 @@ fun MapScreen(viewModel: LocationViewModel = hiltViewModel()) {
 
     }
 
-    if (isListVisible) { // Observed from ViewModel
-        FilteredLocationList(
-            locations = locationObjects,
-            onItemClick = viewModel::onMarkerClick,
-            onClose =  viewModel::toggleListVisibility
-        )
-    }
+
 }

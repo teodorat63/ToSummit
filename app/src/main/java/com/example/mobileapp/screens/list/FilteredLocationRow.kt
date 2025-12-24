@@ -1,4 +1,4 @@
-package com.example.mobileapp.screens.Location.filters
+package com.example.mobileapp.screens.list
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
@@ -18,9 +18,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
-import com.example.mobileapp.data.model.LocationObject
 import coil.compose.AsyncImage
-
+import com.example.mobileapp.data.model.LocationObject
 
 
 @Composable

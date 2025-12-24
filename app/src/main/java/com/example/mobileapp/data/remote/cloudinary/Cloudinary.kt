@@ -3,15 +3,13 @@ package com.example.mobileapp.data.remote.cloudinary
 import android.net.Uri
 import android.util.Log
 import com.cloudinary.android.MediaManager
-import com.cloudinary.android.callback.UploadCallback
 import com.cloudinary.android.callback.ErrorInfo
-import com.example.mobileapp.BuildConfig
+import com.cloudinary.android.callback.UploadCallback
 import javax.inject.Inject
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
 
 class CloudinaryDataSource @Inject constructor(
-    private val mediaManager: MediaManager
 ) {
     suspend fun uploadAvatar(uri: Uri, fileName: String): String? =
         suspendCoroutine { cont ->

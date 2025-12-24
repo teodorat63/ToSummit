@@ -1,4 +1,4 @@
-package com.example.mobileapp.screens.Location.dialogs
+package com.example.mobileapp.screens.location.dialogs
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable

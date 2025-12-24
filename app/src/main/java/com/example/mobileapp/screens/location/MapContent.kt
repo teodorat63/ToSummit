@@ -1,11 +1,11 @@
-package com.example.mobileapp.screens.Location
+package com.example.mobileapp.screens.location
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import com.example.mobileapp.data.model.LocationObject
-import com.example.mobileapp.screens.Location.dialogs.LocationDetailsBottomSheet
+import com.example.mobileapp.screens.location.dialogs.LocationDetailsBottomSheet
 import com.google.android.gms.maps.model.LatLng
 import com.google.maps.android.compose.CameraPositionState
 import com.google.maps.android.compose.Circle

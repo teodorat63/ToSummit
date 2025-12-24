@@ -1,4 +1,4 @@
-package com.example.mobileapp.screens.Location
+package com.example.mobileapp.screens.location
 
 import android.app.DatePickerDialog
 import android.widget.DatePicker
@@ -13,7 +13,6 @@ import androidx.compose.ui.unit.dp
 import com.example.mobileapp.data.model.LocationType
 import java.text.SimpleDateFormat
 import java.util.*
-import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.OutlinedTextField
 
 
