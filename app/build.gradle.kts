@@ -75,8 +75,10 @@ secrets {
 }
 
 dependencies {
+    implementation(platform(libs.androidx.compose.bom))
 
 
+    implementation(platform("com.google.firebase:firebase-bom:34.6.0"))
 
         implementation(libs.play.services.location)
     implementation(libs.androidx.compose.foundation)
@@ -91,6 +93,8 @@ dependencies {
     implementation(libs.maps.compose.widgets)
 
 
+    implementation("androidx.compose.ui:ui")
+    implementation("androidx.compose.ui:ui-tooling-preview")
 
     implementation(libs.cloudinary.android) {
         exclude(group = "com.facebook.fresco") // Exclude Fresco to avoid conflicts with Coil and 16KB paging issue
@@ -99,15 +103,12 @@ dependencies {
     implementation(libs.hilt.android)
     ksp("com.google.dagger:hilt-android-compiler:2.57.1")
     implementation("androidx.hilt:hilt-navigation-compose:1.2.0")
-    implementation(platform("com.google.firebase:firebase-bom:34.6.0"))
     implementation("com.google.firebase:firebase-auth")
     implementation("com.google.firebase:firebase-firestore")
     implementation("com.google.firebase:firebase-storage")
-    implementation("androidx.compose.material:material-icons-extended")
 
     implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.6.2")
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.6.2")
-    implementation("androidx.compose.material3:material3:1.2.0")
     implementation("io.coil-kt:coil-compose:2.3.0")
 
     implementation("com.google.accompanist:accompanist-permissions:0.31.5-beta")
@@ -115,7 +116,6 @@ dependencies {
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)
-    implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.compose.ui)
     implementation(libs.androidx.compose.ui.graphics)
     implementation(libs.androidx.compose.ui.tooling.preview)

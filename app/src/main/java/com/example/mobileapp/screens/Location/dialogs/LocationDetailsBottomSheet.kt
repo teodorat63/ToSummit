@@ -27,7 +27,7 @@ import androidx.compose.ui.window.DialogProperties
 import coil.compose.AsyncImage
 import com.example.mobileapp.R
 import com.example.mobileapp.data.model.LocationObject
-import com.example.mobileapp.data.model.LocationType
+import com.example.mobileapp.utils.getLocationTypeInfo
 
 @Composable
 fun LocationDetailsBottomSheet(
@@ -35,6 +35,7 @@ fun LocationDetailsBottomSheet(
     onClose: () -> Unit
 ) {
     if (location == null) return
+    val typeInfo = getLocationTypeInfo(location.type)
 
     Dialog(
         onDismissRequest = onClose,
@@ -101,7 +102,18 @@ fun LocationDetailsBottomSheet(
                                 horizontalArrangement = Arrangement.spacedBy(8.dp)
                             ) {
                                 Text(location.title, style = MaterialTheme.typography.headlineSmall)
-                                LocationTypeBadge(location.type)
+
+                                Surface(
+                                    shape = RoundedCornerShape(50),
+                                    color = typeInfo.color.copy(alpha = 0.2f)
+                                ) {
+                                    Text(
+                                        text = typeInfo.label,
+                                        color = typeInfo.color,
+                                        style = MaterialTheme.typography.labelMedium,
+                                        modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
+                                    )
+                                }
                             }
 
                             // Description
@@ -124,29 +136,7 @@ fun LocationDetailsBottomSheet(
     }
 }
 
-@Composable
-private fun LocationTypeBadge(type: LocationType) {
-    val (color, label) = when (type) {
-        LocationType.SUMMIT -> Color(0xFF10B981) to "Summit"
-        LocationType.WATER -> Color(0xFF3B82F6) to "Water"
-        LocationType.SHELTER -> Color(0xFFF59E0B) to "Shelter"
-        LocationType.VIEWPOINT -> Color(0xFF8B5CF6) to "Viewpoint"
-        LocationType.OTHER -> Color(0xFF64748B) to "Other"
-    }
 
-    Surface(
-        shape = RoundedCornerShape(50),
-        color = color.copy(alpha = 0.2f),
-        modifier = Modifier.padding(start = 8.dp)
-    ) {
-        Text(
-            text = label,
-            color = color,
-            style = MaterialTheme.typography.labelMedium,
-            modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
-        )
-    }
-}
 
 @Composable
 private fun InfoRow(label: String, value: String, iconRes: Int) {

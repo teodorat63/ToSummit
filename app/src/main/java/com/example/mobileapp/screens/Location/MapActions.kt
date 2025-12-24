@@ -8,7 +8,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.List
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Face
-import androidx.compose.material.icons.filled.List
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
@@ -17,8 +16,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import com.example.mobileapp.data.model.LocationType
-import getLocationTypeColor
+import com.example.mobileapp.ui.theme.Blue600
+import com.example.mobileapp.ui.theme.Emerald600
+import com.example.mobileapp.ui.theme.Violet600
 
 @Composable
 fun MapActions(
@@ -32,7 +32,7 @@ fun MapActions(
         // Add Location (Bottom End)
         FloatingActionButton(
             onClick = onAddClick,
-            containerColor = Color(getLocationTypeColor(LocationType.SUMMIT)),
+            containerColor = Emerald600,
             shape = CircleShape,
             modifier = Modifier
                 .align(Alignment.BottomEnd)
@@ -45,7 +45,7 @@ fun MapActions(
         // Filter Locations (Bottom Start)
         FloatingActionButton(
             onClick = onFilterClick,
-            containerColor = Color(getLocationTypeColor(LocationType.WATER)),
+            containerColor = Blue600,
             shape = CircleShape,
             modifier = Modifier
                 .align(Alignment.BottomStart)
@@ -58,7 +58,7 @@ fun MapActions(
         // List Locations (Top End)
         FloatingActionButton(
             onClick = onListClick,
-            containerColor = Color(getLocationTypeColor(LocationType.VIEWPOINT)),
+            containerColor = Violet600,
             shape = CircleShape,
             modifier = Modifier
                 .align(Alignment.TopEnd)

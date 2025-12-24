@@ -10,16 +10,16 @@ import com.example.mobileapp.data.model.LocationType
 import com.example.mobileapp.data.remote.cloudinary.CloudinaryDataSource
 import com.example.mobileapp.data.repository.AuthRepository
 import com.example.mobileapp.data.repository.LocationRepository
+import com.google.firebase.Timestamp
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import java.util.UUID
 import javax.inject.Inject
-import com.google.firebase.Timestamp
-import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.stateIn
-import kotlinx.coroutines.flow.SharingStarted
 
 @HiltViewModel
 class LocationViewModel @Inject constructor(
@@ -141,6 +141,45 @@ class LocationViewModel @Inject constructor(
             // Get current user
             val currentUser = authRepository.currentUser
             val userName = currentUser?.email ?: "Anonymous"
+
+            val newObject = LocationObject(
+                id = locationId,
+                type = _typeInput.value,
+                latitude = loc.latitude,
+                longitude = loc.longitude,
+                title = name,
+                description = _descriptionInput.value,
+                authorName = userName,
+                createdAt = Timestamp.now(),
+                photoUrl = imageUrl
+            )
+
+            repository.addLocationObject(newObject)
+
+            // Reset state
+            _nameInput.value = ""
+            _descriptionInput.value = ""
+            _photoUri.value = null
+            _typeInput.value = LocationType.OTHER
+            _isDialogVisible.value = false
+        }
+    }
+
+    fun addLocationObjectAuthor(customAuthorName: String) {
+        val loc = _location.value ?: return
+        val name = _nameInput.value
+        if (name.isBlank()) return
+
+        viewModelScope.launch {
+
+            val locationId = UUID.randomUUID().toString()
+
+            val imageUrl = _photoUri.value?.let { uri ->
+                cloudinaryDataSource.uploadLocationImage(uri, locationId)
+            } ?: ""
+
+
+            val userName = customAuthorName
 
             val newObject = LocationObject(
                 id = locationId,

@@ -1,5 +1,4 @@
 package com.example.mobileapp.data.model
-import android.net.Uri
 import com.google.firebase.Timestamp
 
 data class LocationObject(
@@ -19,6 +18,8 @@ enum class LocationType {
     SHELTER,
     WATER,
     VIEWPOINT,
+
+    PARKING,
     OTHER
 }
 
