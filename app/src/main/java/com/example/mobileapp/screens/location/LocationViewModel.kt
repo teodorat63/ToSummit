@@ -30,6 +30,13 @@ class LocationViewModel @Inject constructor(
 
 ) : ViewModel() {
 
+    private val _searchQuery = MutableStateFlow("")
+    val searchQuery: StateFlow<String> = _searchQuery
+
+    fun onSearchQueryChange(query: String) {
+        _searchQuery.value = query
+    }
+
 
     private val _location = MutableStateFlow<Location?>(null)
     val location: StateFlow<Location?> = _location
@@ -57,17 +64,40 @@ class LocationViewModel @Inject constructor(
     val filter: StateFlow<LocationFilter> = _filter
 
     val filteredLocationObjects: StateFlow<List<LocationObject>> =
-        combine(repository.locationObjects, _filter) { objects, filter ->
+        combine(
+            repository.locationObjects,
+            _filter,
+            _searchQuery
+        ) { objects, filter, query ->
+
             objects.filter { obj ->
-                val typeMatch = filter.type?.let { it == obj.type } ?: true
-                val authorMatch = filter.authorName?.let { obj.authorName.contains(it, ignoreCase = true) } ?: true
-                val dateMatch = filter.dateRange?.let { (start, end) ->
-                    val ts = obj.createdAt.toDate().time
-                    ts in start..end
-                } ?: true
-                typeMatch && authorMatch && dateMatch
+                val typeMatch =
+                    filter.type?.let { it == obj.type } ?: true
+
+                val authorMatch =
+                    filter.authorName?.let {
+                        obj.authorName.contains(it, ignoreCase = true)
+                    } ?: true
+
+                val dateMatch =
+                    filter.dateRange?.let { (start, end) ->
+                        val ts = obj.createdAt.toDate().time
+                        ts in start..end
+                    } ?: true
+
+                val searchMatch =
+                    query.isBlank() ||
+                            obj.title.contains(query, ignoreCase = true) ||
+                            obj.description.contains(query, ignoreCase = true)
+
+                typeMatch && authorMatch && dateMatch && searchMatch
             }
-        }.stateIn(viewModelScope, SharingStarted.Lazily, emptyList())
+        }.stateIn(
+            viewModelScope,
+            SharingStarted.WhileSubscribed(5_000),
+            emptyList()
+        )
+
 
     // Filter setters
     fun setTypeFilter(type: LocationType?) {
