@@ -23,7 +23,7 @@ import com.example.mobileapp.data.model.LocationObject
 
 
 @Composable
-fun FilteredLocationRow(locationObject: LocationObject, onClick: (LocationObject) -> Unit) {
+fun LocationRow(locationObject: LocationObject, onClick: (LocationObject) -> Unit) {
     Card(
         modifier = Modifier
             .fillMaxWidth()

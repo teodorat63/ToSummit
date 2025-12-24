@@ -1,13 +1,11 @@
 package com.example.mobileapp.screens.location
 
-import com.example.mobileapp.R
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Face
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
@@ -17,6 +15,7 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import com.example.mobileapp.R
 import com.example.mobileapp.ui.theme.Blue600
 import com.example.mobileapp.ui.theme.Emerald600
 
@@ -51,6 +50,7 @@ fun MapActions(
         ) {
             Icon(
                 painter = painterResource(R.drawable.ic_filter),
+                contentDescription = null
             )
         }
 

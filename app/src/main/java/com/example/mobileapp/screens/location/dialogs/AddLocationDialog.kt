@@ -7,7 +7,6 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -25,7 +24,6 @@ import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -47,6 +45,7 @@ import androidx.compose.ui.window.DialogProperties
 import coil.compose.AsyncImage
 import com.example.mobileapp.R
 import com.example.mobileapp.data.model.LocationType
+import com.example.mobileapp.ui.components.InputCard
 import com.example.mobileapp.utils.getLocationTypeInfo
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -111,7 +110,7 @@ fun AddLocationFullScreenDialog(
                             OutlinedTextField(
                                 value = name,
                                 onValueChange = onNameChange,
-                                placeholder = { Text("e.g., Hidden Valley Peak") },
+                                placeholder = { Text("Add name of this location") },
                                 modifier = Modifier.fillMaxWidth()
                             )
                         }
@@ -215,17 +214,8 @@ fun AddLocationFullScreenDialog(
     }
 }
 
-// Helper: Card wrapper
-@Composable
-private fun InputCard(content: @Composable ColumnScope.() -> Unit) {
-    Card(
-        shape = RoundedCornerShape(24.dp),
-        elevation = CardDefaults.cardElevation(6.dp),
-        modifier = Modifier.fillMaxWidth()
-    ) {
-        Column(modifier = Modifier.padding(16.dp), content = content)
-    }
-}
+
+
 
 // Helper: LocationType item
 @Composable

@@ -19,12 +19,15 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.example.mobileapp.screens.location.LocationViewModel
+import com.example.mobileapp.screens.location.dialogs.LocationDetailsBottomSheet
 
 @Composable
 fun LocationListScreen(
     viewModel: LocationViewModel
 ) {
-    val locations by viewModel.filteredLocationObjects.collectAsState()
+    val locationObjects by viewModel.filteredLocationObjects.collectAsState()
+    val selectedObject by viewModel.selectedObject.collectAsState()
+
 
     Column(
         modifier = Modifier
@@ -47,28 +50,31 @@ fun LocationListScreen(
                     color = Color.White
                 )
                 Text(
-                    text = "${locations.size} places",
+                    text = "${locationObjects.size} places",
                     style = MaterialTheme.typography.bodyMedium,
                     color = Color.White.copy(alpha = 0.7f)
                 )
             }
         }
 
-        if (locations.isNotEmpty()) {
+        if (locationObjects.isNotEmpty()) {
             LazyColumn(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(vertical = 8.dp),
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                items(locations) { location ->
-                    FilteredLocationRow(
+                items(locationObjects) { location ->
+                    LocationRow(
                         locationObject = location,
                         onClick = viewModel::onMarkerClick
                     )
                 }
             }
         }
+    }
+    selectedObject?.let {
+        LocationDetailsBottomSheet(it, viewModel::clearSelectedObject)
     }
 }
 
