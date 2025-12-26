@@ -5,7 +5,11 @@ import android.location.Location
 import android.os.Looper
 import android.util.Log
 import com.example.mobileapp.data.model.LocationObject
-import com.google.android.gms.location.*
+import com.google.android.gms.location.LocationCallback
+import com.google.android.gms.location.LocationRequest
+import com.google.android.gms.location.LocationResult
+import com.google.android.gms.location.LocationServices
+import com.google.android.gms.location.Priority
 import com.google.firebase.firestore.FirebaseFirestore
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.channels.awaitClose
@@ -23,10 +27,14 @@ class LocationRepository @Inject constructor(
     private val fusedLocationClient = LocationServices.getFusedLocationProviderClient(context)
     private val firestore = FirebaseFirestore.getInstance()
 
+    // -------------------------
+    // StateFlow for UI
+    // -------------------------
     private val _locationObjects = MutableStateFlow<List<LocationObject>>(emptyList())
     val locationObjects: StateFlow<List<LocationObject>> = _locationObjects
 
     init {
+        // Observe Firestore in real-time
         firestore.collection("location_objects")
             .addSnapshotListener { snapshot, error ->
                 if (error != null) return@addSnapshotListener
@@ -40,18 +48,51 @@ class LocationRepository @Inject constructor(
             }
     }
 
+    // -------------------------
+    // Flow for Notifications
+    // -------------------------
+    fun observeLocationObjects(): Flow<List<LocationObject>> = callbackFlow {
+        val listener = firestore.collection("location_objects")
+            .addSnapshotListener { snapshot, error ->
+                if (error != null) return@addSnapshotListener
+
+                val list = snapshot?.documents
+                    ?.mapNotNull { it.toObject(LocationObject::class.java) }
+                    ?: emptyList()
+
+                trySend(list)
+            }
+
+        awaitClose { listener.remove() }
+    }
+
+    // -------------------------
+    // Add a LocationObject
+    // -------------------------
     fun addLocationObject(obj: LocationObject) {
+        Log.d("Firestore", "Attempting to add LocationObject with id: ${obj.id} -> $obj")
+
         firestore.collection("location_objects")
             .document(obj.id)
             .set(obj)
             .addOnSuccessListener {
-                Log.d("Firestore", "LocationObject added successfully")
+                Log.d("Firestore", "LocationObject added successfully: ${obj.id}")
             }
             .addOnFailureListener { e ->
-                Log.e("Firestore", "Failed to add LocationObject", e)
+                Log.e("Firestore", "Failed to add LocationObject: ${obj.id}", e)
+                e?.let {
+                    Log.e("Firestore", "Exception message: ${it.message}")
+                }
+            }
+            .addOnCompleteListener { task ->
+                Log.d("Firestore", "Task complete. Successful? ${task.isSuccessful}")
             }
     }
 
+
+    // -------------------------
+    // Flow for Device Location Updates
+    // -------------------------
     @Suppress("MissingPermission")
     fun getLocationUpdates(): Flow<Location> = callbackFlow {
         val request = LocationRequest.Builder(
@@ -69,4 +110,3 @@ class LocationRepository @Inject constructor(
         awaitClose { fusedLocationClient.removeLocationUpdates(callback) }
     }
 }
-

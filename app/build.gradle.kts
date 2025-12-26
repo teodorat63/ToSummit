@@ -77,7 +77,7 @@ secrets {
 dependencies {
     implementation(platform(libs.androidx.compose.bom))
 
-
+    implementation("androidx.lifecycle:lifecycle-service:2.8.6")
     implementation(platform("com.google.firebase:firebase-bom:34.6.0"))
 
         implementation(libs.play.services.location)

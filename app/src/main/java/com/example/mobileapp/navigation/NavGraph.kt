@@ -25,7 +25,7 @@ fun NavGraph() {
     AppScaffold(navController) { padding ->
         NavHost(
             navController = navController,
-            startDestination = Screen.MapScreen.route,
+            startDestination = Screen.LoginScreen.route,
             modifier = Modifier.padding(padding)
         ) {
 
