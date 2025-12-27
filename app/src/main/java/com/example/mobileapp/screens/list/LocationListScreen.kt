@@ -33,6 +33,8 @@ fun LocationListScreen(
     val locationsWithDistance by viewModel.locationsWithDistance.collectAsState()
     val selectedObject by viewModel.selectedObject.collectAsState()
     val searchQuery by viewModel.searchQuery.collectAsState()
+    val userLocation by viewModel.location.collectAsState()
+
 
 
 
@@ -103,9 +105,14 @@ fun LocationListScreen(
 
         }
     }
-    selectedObject?.let {
-        LocationDetailsBottomSheet(it, viewModel::clearSelectedObject)
+    selectedObject?.let { obj ->
+        LocationDetailsBottomSheet(
+            location = obj,
+            userLocation = userLocation,
+            onClose = viewModel::clearSelectedObject
+        )
     }
+
 }
 
 

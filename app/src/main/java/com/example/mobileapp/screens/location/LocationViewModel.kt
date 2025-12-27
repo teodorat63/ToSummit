@@ -10,6 +10,7 @@ import com.example.mobileapp.data.model.LocationType
 import com.example.mobileapp.data.remote.cloudinary.CloudinaryDataSource
 import com.example.mobileapp.data.repository.AuthRepository
 import com.example.mobileapp.data.repository.LocationRepository
+import com.example.mobileapp.data.repository.UserRepository
 import com.example.mobileapp.domain.model.LocationWithDistance
 import com.example.mobileapp.domain.usecase.ObserveLocationsWithDistanceUseCase
 import com.google.firebase.Timestamp
@@ -29,6 +30,7 @@ class LocationViewModel @Inject constructor(
     private val repository: LocationRepository,
     private val cloudinaryDataSource: CloudinaryDataSource,
     private val authRepository: AuthRepository,
+    private val userRepository: UserRepository,
     private val observeLocationsWithDistanceUseCase: ObserveLocationsWithDistanceUseCase
 
 
@@ -42,7 +44,6 @@ class LocationViewModel @Inject constructor(
     val locationsWithDistance: StateFlow<List<LocationWithDistance>> =
         observeLocationsWithDistanceUseCase()
             .map { list ->
-                // Optional: sort by distance
                 list.sortedBy { it.distanceMeters }
             }
             .combine(_searchQuery) { locations, query ->
@@ -195,6 +196,7 @@ class LocationViewModel @Inject constructor(
             )
 
             repository.addLocationObject(newObject)
+            userRepository.addPointsToCurrentUser(10)
 
             // Reset state
             _nameInput.value = ""

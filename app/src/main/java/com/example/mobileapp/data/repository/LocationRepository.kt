@@ -3,7 +3,6 @@ package com.example.mobileapp.data.repository
 import android.content.Context
 import android.location.Location
 import android.os.Looper
-import android.util.Log
 import com.example.mobileapp.data.model.LocationObject
 import com.google.android.gms.location.LocationCallback
 import com.google.android.gms.location.LocationRequest
@@ -70,29 +69,13 @@ class LocationRepository @Inject constructor(
     // Add a LocationObject
     // -------------------------
     fun addLocationObject(obj: LocationObject) {
-        Log.d("Firestore", "Attempting to add LocationObject with id: ${obj.id} -> $obj")
 
         firestore.collection("location_objects")
             .document(obj.id)
             .set(obj)
-            .addOnSuccessListener {
-                Log.d("Firestore", "LocationObject added successfully: ${obj.id}")
-            }
-            .addOnFailureListener { e ->
-                Log.e("Firestore", "Failed to add LocationObject: ${obj.id}", e)
-                e?.let {
-                    Log.e("Firestore", "Exception message: ${it.message}")
-                }
-            }
-            .addOnCompleteListener { task ->
-                Log.d("Firestore", "Task complete. Successful? ${task.isSuccessful}")
-            }
     }
 
 
-    // -------------------------
-    // Flow for Device Location Updates
-    // -------------------------
     @Suppress("MissingPermission")
     fun getLocationUpdates(): Flow<Location> = callbackFlow {
         val request = LocationRequest.Builder(

@@ -1,5 +1,6 @@
 package com.example.mobileapp.screens.location.dialogs
 
+
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -12,7 +13,9 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -27,15 +30,42 @@ import androidx.compose.ui.window.DialogProperties
 import coil.compose.AsyncImage
 import com.example.mobileapp.R
 import com.example.mobileapp.data.model.LocationObject
+import com.example.mobileapp.ui.theme.Background
+import com.example.mobileapp.ui.theme.Emerald600
+import com.example.mobileapp.ui.theme.Slate600
+import com.example.mobileapp.ui.theme.Violet600
+import com.example.mobileapp.utils.DistanceCalculator
+import com.example.mobileapp.utils.IconCircle
 import com.example.mobileapp.utils.getLocationTypeInfo
+import com.example.mobileapp.utils.getRelativeTimeString
 
 @Composable
 fun LocationDetailsBottomSheet(
     location: LocationObject?,
+    userLocation: android.location.Location?, // User location for distance calculation
     onClose: () -> Unit
 ) {
     if (location == null) return
+
     val typeInfo = getLocationTypeInfo(location.type)
+
+    val distanceText = if (userLocation != null) {
+        val distanceMeters = DistanceCalculator.distanceInMeters(
+            userLocation.latitude,
+            userLocation.longitude,
+            location.latitude,
+            location.longitude
+        )
+        if (distanceMeters < 1000f) {
+            "${distanceMeters.toInt()} m away"
+        } else {
+            String.format("%.1f km away", distanceMeters / 1000f)
+        }
+    } else {
+        "Distance unknown"
+    }
+
+    val scrollState = rememberScrollState()
 
     Dialog(
         onDismissRequest = onClose,
@@ -64,6 +94,7 @@ fun LocationDetailsBottomSheet(
                     tonalElevation = 8.dp
                 ) {
                     Column(modifier = Modifier.fillMaxSize()) {
+
                         // Drag handle
                         Box(
                             modifier = Modifier
@@ -71,19 +102,18 @@ fun LocationDetailsBottomSheet(
                                 .align(Alignment.CenterHorizontally)
                                 .size(width = 48.dp, height = 4.dp)
                                 .clip(RoundedCornerShape(2.dp))
-                                .background(Color.Gray)
+                                .background(Background)
                         )
 
                         // Scrollable content
                         Column(
                             modifier = Modifier
                                 .padding(horizontal = 16.dp, vertical = 8.dp)
-                                .fillMaxSize()
-                                .weight(1f),
+                                .verticalScroll(scrollState),
                             verticalArrangement = Arrangement.spacedBy(16.dp)
                         ) {
+                            // Photo
                             if (location.photoUrl.isNotBlank()) {
-
                                 AsyncImage(
                                     model = location.photoUrl,
                                     contentDescription = location.title,
@@ -92,8 +122,6 @@ fun LocationDetailsBottomSheet(
                                         .height(200.dp)
                                         .clip(RoundedCornerShape(20.dp))
                                 )
-
-
                             }
 
                             // Title & Type
@@ -124,10 +152,10 @@ fun LocationDetailsBottomSheet(
                                 }
                             }
 
-                            // Info rows
-                            InfoRow("Author", location.authorName, R.drawable.ic_user)
-                            InfoRow("Coordinates", "${location.latitude}, ${location.longitude}", R.drawable.ic_map)
-                            InfoRow("Created", location.createdAt.toDate().toString(), R.drawable.ic_calendar)
+                            InfoRow("Author", location.authorName, R.drawable.ic_user, Emerald600)
+                            InfoRow("Distance", distanceText, R.drawable.ic_map, Violet600)
+                            InfoRow("Created", getRelativeTimeString(location.createdAt.toDate()), R.drawable.ic_calendar, Slate600)
+
                         }
                     }
                 }
@@ -137,22 +165,17 @@ fun LocationDetailsBottomSheet(
 }
 
 
-
 @Composable
-private fun InfoRow(label: String, value: String, iconRes: Int) {
+private fun InfoRow(label: String, value: String, iconRes: Int, backgroundColor: Color) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(8.dp),
+        horizontalArrangement = Arrangement.spacedBy(12.dp),
         modifier = Modifier
             .fillMaxWidth()
             .background(MaterialTheme.colorScheme.surfaceVariant, RoundedCornerShape(16.dp))
             .padding(12.dp)
     ) {
-        AsyncImage(
-            model = iconRes,
-            contentDescription = null,
-            modifier = Modifier.size(24.dp)
-        )
+        IconCircle(iconRes = iconRes, backgroundColor = backgroundColor)
         Column {
             Text(label, style = MaterialTheme.typography.labelSmall)
             Text(value, style = MaterialTheme.typography.bodyMedium)

@@ -52,7 +52,12 @@ fun MapContent(
         }
     }
 
-    selectedObject?.let {
-        LocationDetailsBottomSheet(it, onDismissDetails)
+    selectedObject?.let { obj ->
+        LocationDetailsBottomSheet(
+            location = obj,
+            userLocation = location,
+            onClose = onDismissDetails
+        )
     }
+
 }
