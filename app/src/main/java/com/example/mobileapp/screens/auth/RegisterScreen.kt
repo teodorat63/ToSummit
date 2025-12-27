@@ -111,7 +111,7 @@ fun RegisterScreen(
 
             InputField(
                 value = state.password,
-                onValueChange = viewModel::onLoginPasswordChange,
+                onValueChange = viewModel::onRegisterPasswordChange,
                 label = "Password",
                 visualTransformation = if (showPassword) VisualTransformation.None else PasswordVisualTransformation(),
                 trailingIcon = {
