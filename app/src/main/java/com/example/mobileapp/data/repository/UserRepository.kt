@@ -13,7 +13,6 @@ import javax.inject.Inject
 class UserRepository @Inject constructor(
     private val firestore: FirebaseFirestore,
     private val authRepository: AuthRepository
-
 ) {
 
     private val usersRef = firestore.collection("users")

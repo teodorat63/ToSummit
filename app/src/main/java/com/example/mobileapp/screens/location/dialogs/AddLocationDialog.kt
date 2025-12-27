@@ -1,9 +1,9 @@
 package com.example.mobileapp.screens.location.dialogs
 
 import android.net.Uri
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -17,13 +17,11 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.Button
-import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -38,6 +36,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
@@ -126,7 +125,7 @@ fun AddLocationFullScreenDialog(
                                 onValueChange = onDescriptionChange,
                                 placeholder = { Text("Add details about this location...") },
                                 modifier = Modifier.fillMaxWidth(),
-                                minLines = 4
+                                minLines = 3
                             )
                         }
                     }
@@ -139,8 +138,7 @@ fun AddLocationFullScreenDialog(
 
                             LazyVerticalGrid(
                                 columns = GridCells.Fixed(3),
-                                modifier = Modifier.height(240.dp),
-                                horizontalArrangement = Arrangement.spacedBy(12.dp),
+                                modifier = Modifier.height(180.dp),                                horizontalArrangement = Arrangement.spacedBy(12.dp),
                                 verticalArrangement = Arrangement.spacedBy(12.dp)
                             ) {
                                 items(LocationType.values()) { item ->
@@ -149,7 +147,6 @@ fun AddLocationFullScreenDialog(
                                         type = item,
                                         selected = item == type,
                                         onClick = { onTypeChange(item) },
-                                        iconRes = info.drawableRes
                                     )
                                 }
                             }
@@ -173,20 +170,6 @@ fun AddLocationFullScreenDialog(
                                             .clip(RoundedCornerShape(20.dp)),
                                         contentScale = androidx.compose.ui.layout.ContentScale.Crop
                                     )
-
-                                    IconButton(
-                                        onClick = { /* optional: remove photo */ },
-                                        modifier = Modifier
-                                            .align(Alignment.TopEnd)
-                                            .padding(8.dp)
-                                            .background(MaterialTheme.colorScheme.error, CircleShape)
-                                    ) {
-                                        Icon(
-                                            Icons.Default.Close,
-                                            contentDescription = null,
-                                            tint = MaterialTheme.colorScheme.onError
-                                        )
-                                    }
                                 }
                             } else {
                                 OutlinedButton(
@@ -217,50 +200,60 @@ fun AddLocationFullScreenDialog(
 
 
 
-// Helper: LocationType item
 @Composable
 private fun LocationTypeItem(
     type: LocationType,
     selected: Boolean,
-    onClick: () -> Unit,
-    iconRes: Int
+    onClick: () -> Unit
 ) {
-    Card(
-        onClick = onClick,
-        shape = RoundedCornerShape(16.dp),
-        border = if (selected)
-            BorderStroke(2.dp, MaterialTheme.colorScheme.primary)
-        else null
+    val info = getLocationTypeInfo(type)
+
+    Box(
+        modifier = Modifier
+            .size(80.dp)
+            .clip(RoundedCornerShape(16.dp))
+            .background(if (selected) info.color.copy(alpha = 0.2f) else Color(0xFFF5F5F5))
+            .clickable { onClick() },
+        contentAlignment = Alignment.Center
     ) {
-        Box(modifier = Modifier.fillMaxSize()) {
-            Column(
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
+        ) {
+            Box(
                 modifier = Modifier
-                    .padding(12.dp)
-                    .align(Alignment.Center),
-                horizontalAlignment = Alignment.CenterHorizontally
+                    .size(48.dp)
+                    .clip(RoundedCornerShape(12.dp))
+                    .background(info.color.copy()),
+                contentAlignment = Alignment.Center
             ) {
                 Image(
-                    painter = painterResource(id = iconRes),
-                    contentDescription = null,
-                    modifier = Modifier.size(48.dp)
+                    painter = painterResource(id = info.drawableRes),
+                    contentDescription = info.label,
+                    modifier = Modifier.size(28.dp)
                 )
-                Spacer(Modifier.height(6.dp))
-                Text(type.name.lowercase().replaceFirstChar { it.uppercase() })
             }
+            Spacer(modifier = Modifier.height(4.dp))
+            Text(
+                text = info.label,
+                style = MaterialTheme.typography.bodySmall,
+                color = Color.Black
+            )
+        }
 
-            if (selected) {
-                Icon(
-                    Icons.Default.CheckCircle,
-                    contentDescription = null,
-                    tint = MaterialTheme.colorScheme.primary,
-                    modifier = Modifier
-                        .align(Alignment.TopEnd)
-                        .padding(6.dp)
-                )
-            }
+        if (selected) {
+            Icon(
+                imageVector = Icons.Default.CheckCircle,
+                contentDescription = "Selected",
+                tint = info.color,
+                modifier = Modifier
+                    .align(Alignment.TopEnd)
+                    .size(20.dp)
+            )
         }
     }
 }
+
 
 
 

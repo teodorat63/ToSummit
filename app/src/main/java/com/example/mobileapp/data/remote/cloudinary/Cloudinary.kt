@@ -10,11 +10,11 @@ import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
 
 class CloudinaryDataSource @Inject constructor(
+    private val mediaManager: MediaManager
 ) {
     suspend fun uploadAvatar(uri: Uri, fileName: String): String? =
         suspendCoroutine { cont ->
-
-            MediaManager.get().upload(uri)
+            mediaManager.upload(uri)
                 .option("upload_preset", "android_preset")
                 .option("folder", "avatars")
                 .option("public_id", fileName)
@@ -38,13 +38,10 @@ class CloudinaryDataSource @Inject constructor(
                 .dispatch()
         }
 
-    suspend fun uploadLocationImage(
-        uri: Uri,
-        locationId: String
-    ): String? =
+    suspend fun uploadLocationImage(uri: Uri, locationId: String): String? =
         suspendCoroutine { cont ->
 
-            MediaManager.get().upload(uri)
+            mediaManager.upload(uri)
                 .option("upload_preset", "android_preset")
                 .option("folder", "locations")
                 .option("public_id", locationId)
@@ -77,5 +74,9 @@ class CloudinaryDataSource @Inject constructor(
         }
 
 
+
+
 }
+
+
 

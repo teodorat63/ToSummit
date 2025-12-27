@@ -25,18 +25,14 @@ class AuthRepository @Inject constructor(
         photoUri: Uri?
     ): Result<FirebaseUser> {
         return try {
-            // 1. Create user in Firebase Auth
             val authResult = firebaseAuth.createUserWithEmailAndPassword(user.email, password).await()
             val firebaseUser = authResult.user ?: return Result.failure(Exception("User not created"))
             val uid = firebaseUser.uid
 
-            // 2. Upload Profile Picture to Cloudinary
             val photoUrl = photoUri?.let { cloudinaryDataSource.uploadAvatar(it, uid) }
 
-            // 3. Create full user object with uid and photoUrl
             val newUser = user.copy(uid = uid, photoUrl = photoUrl)
 
-            // 4. Save to Firestore
             firestore.collection("users")
                 .document(uid)
                 .set(newUser)

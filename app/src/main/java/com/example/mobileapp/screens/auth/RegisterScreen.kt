@@ -15,6 +15,7 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -45,6 +46,15 @@ fun RegisterScreen(
     navController: NavController
 ) {
     val state = viewModel.registerState
+
+    if (state.success) {
+        LaunchedEffect(state.success) {
+            navController.navigate(Screen.MapScreen.route) {
+                popUpTo(Screen.RegisterScreen.route) { inclusive = true }
+            }
+        }
+    }
+
     val galleryLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetContent()
     ) { uri -> viewModel.onRegisterPhotoChange(uri) }
