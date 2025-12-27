@@ -30,9 +30,10 @@ import com.example.mobileapp.screens.location.dialogs.LocationDetailsBottomSheet
 fun LocationListScreen(
     viewModel: LocationViewModel
 ) {
-    val locationObjects by viewModel.filteredLocationObjects.collectAsState()
+    val locationsWithDistance by viewModel.locationsWithDistance.collectAsState()
     val selectedObject by viewModel.selectedObject.collectAsState()
     val searchQuery by viewModel.searchQuery.collectAsState()
+
 
 
 
@@ -57,7 +58,7 @@ fun LocationListScreen(
                     color = Color.White
                 )
                 Text(
-                    text = "${locationObjects.size} places",
+                    text = "${locationsWithDistance.size} places",
                     style = MaterialTheme.typography.bodyMedium,
                     color = Color.White.copy(alpha = 0.7f)
                 )
@@ -84,20 +85,22 @@ fun LocationListScreen(
         )
 
 
-        if (locationObjects.isNotEmpty()) {
+        if (locationsWithDistance.isNotEmpty()) {
             LazyColumn(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(vertical = 8.dp),
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                items(locationObjects) { location ->
+                items(locationsWithDistance) { item ->
                     LocationRow(
-                        locationObject = location,
+                        locationObject = item.location,
+                        distanceMeters = item.distanceMeters,
                         onClick = viewModel::onMarkerClick
                     )
                 }
             }
+
         }
     }
     selectedObject?.let {

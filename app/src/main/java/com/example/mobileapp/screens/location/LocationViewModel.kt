@@ -10,12 +10,15 @@ import com.example.mobileapp.data.model.LocationType
 import com.example.mobileapp.data.remote.cloudinary.CloudinaryDataSource
 import com.example.mobileapp.data.repository.AuthRepository
 import com.example.mobileapp.data.repository.LocationRepository
+import com.example.mobileapp.domain.model.LocationWithDistance
+import com.example.mobileapp.domain.usecase.ObserveLocationsWithDistanceUseCase
 import com.google.firebase.Timestamp
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import java.util.UUID
@@ -25,13 +28,35 @@ import javax.inject.Inject
 class LocationViewModel @Inject constructor(
     private val repository: LocationRepository,
     private val cloudinaryDataSource: CloudinaryDataSource,
-    private val authRepository: AuthRepository
+    private val authRepository: AuthRepository,
+    private val observeLocationsWithDistanceUseCase: ObserveLocationsWithDistanceUseCase
+
 
 
 ) : ViewModel() {
 
+    //for the list
     private val _searchQuery = MutableStateFlow("")
     val searchQuery: StateFlow<String> = _searchQuery
+
+    val locationsWithDistance: StateFlow<List<LocationWithDistance>> =
+        observeLocationsWithDistanceUseCase()
+            .map { list ->
+                // Optional: sort by distance
+                list.sortedBy { it.distanceMeters }
+            }
+            .combine(_searchQuery) { locations, query ->
+                if (query.isBlank()) locations
+                else locations.filter {
+                    it.location.title.contains(query, ignoreCase = true)
+                }
+            }
+            .stateIn(
+                viewModelScope,
+                SharingStarted.WhileSubscribed(5000),
+                emptyList()
+            )
+
 
     fun onSearchQueryChange(query: String) {
         _searchQuery.value = query

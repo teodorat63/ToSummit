@@ -23,7 +23,11 @@ import com.example.mobileapp.data.model.LocationObject
 
 
 @Composable
-fun LocationRow(locationObject: LocationObject, onClick: (LocationObject) -> Unit) {
+fun LocationRow(
+    locationObject: LocationObject,
+    distanceMeters: Float,
+    onClick: (LocationObject) -> Unit
+) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -62,6 +66,27 @@ fun LocationRow(locationObject: LocationObject, onClick: (LocationObject) -> Uni
                     )
                 }
             }
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            // Distance at bottom-right
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Spacer(modifier = Modifier.weight(1f))
+                val distanceText = if (distanceMeters < 1000f) {
+                    "${distanceMeters.toInt()} m away"
+                } else {
+                    String.format("%.1f km away", distanceMeters / 1000f)
+                }
+                Text(
+                    text = distanceText,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
         }
     }
 }
+
