@@ -22,43 +22,16 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 
 @Composable
-fun PermissionScreen(onPermissionGranted: () -> Unit) {
-    var permissionsGranted by remember { mutableStateOf(false) }
-
-    val galleryPermission = Manifest.permission.READ_MEDIA_IMAGES
-
-    val launcher = rememberLauncherForActivityResult(
-        ActivityResultContracts.RequestMultiplePermissions()
-    ) { permissions ->
-        val locationGranted = permissions[Manifest.permission.ACCESS_FINE_LOCATION] == true
-        val galleryGranted = permissions[galleryPermission] == true
-        permissionsGranted = locationGranted && galleryGranted
-    }
-
+fun PermissionScreen(onGrantClick: () -> Unit) {
     Column(
-        modifier = Modifier.fillMaxSize().padding(16.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
+        modifier = Modifier.fillMaxSize(),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        if (!permissionsGranted) {
-            Text("This app requires Location and Gallery permissions.")
-            Spacer(modifier = Modifier.height(16.dp))
-            Button(onClick = {
-                // Must be triggered by user action on Android 14+
-                launcher.launch(
-                    arrayOf(
-                        Manifest.permission.ACCESS_FINE_LOCATION,
-                        galleryPermission
-                    )
-                )
-            }) {
-                Text("Grant Permissions")
-            }
-        } else {
-            LaunchedEffect(Unit) {
-                onPermissionGranted()
-            }
+        Text("Location permission is required to track nearby peaks")
+        Spacer(Modifier.height(16.dp))
+        Button(onClick = onGrantClick) {
+            Text("Grant permission")
         }
     }
 }
-

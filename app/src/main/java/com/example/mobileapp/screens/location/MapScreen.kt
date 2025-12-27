@@ -1,5 +1,6 @@
 package com.example.mobileapp.screens.location
 
+import android.content.Intent
 import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -7,6 +8,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -14,8 +16,11 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
+import androidx.core.content.ContextCompat
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.mobileapp.screens.location.dialogs.AddLocationFullScreenDialog
+import com.example.mobileapp.service.LocationTrackingService
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.model.LatLng
 import com.google.maps.android.compose.rememberCameraPositionState
@@ -23,6 +28,7 @@ import com.google.maps.android.compose.rememberCameraPositionState
 
 @Composable
 fun MapScreen(viewModel: LocationViewModel = hiltViewModel()) {
+
     val location by viewModel.location.collectAsState()
     val isDialogVisible by viewModel.isDialogVisible.collectAsState()
     val nameInput by viewModel.nameInput.collectAsState()
@@ -33,7 +39,17 @@ fun MapScreen(viewModel: LocationViewModel = hiltViewModel()) {
     val filter by viewModel.filter.collectAsState()
     val locationObjects by viewModel.filteredLocationObjects.collectAsState()
 
+    val context = LocalContext.current
 
+    DisposableEffect(Unit) {
+        val intent = Intent(context, LocationTrackingService::class.java)
+
+        ContextCompat.startForegroundService(context, intent)
+
+        onDispose {
+            context.stopService(intent)
+        }
+    }
 
 
     val cameraPositionState = rememberCameraPositionState()
