@@ -37,6 +37,17 @@ class LocationViewModel @Inject constructor(
 
 ) : ViewModel() {
 
+    val availableAuthors: StateFlow<List<String>> =
+        repository.locationObjects
+            .map { objects ->
+                objects.map { it.authorName }.distinct().sorted()
+            }
+            .stateIn(
+                viewModelScope,
+                SharingStarted.WhileSubscribed(5_000),
+                emptyList()
+            )
+
     //for the list
     private val _searchQuery = MutableStateFlow("")
     val searchQuery: StateFlow<String> = _searchQuery

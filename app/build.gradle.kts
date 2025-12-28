@@ -84,6 +84,7 @@ dependencies {
     implementation(libs.androidx.compose.foundation)
     implementation(libs.androidx.compose.foundation.layout)
     implementation(libs.androidx.appcompat)
+    implementation(libs.androidx.ui)
     // Google Maps Compose library
     val mapsComposeVersion = "4.4.1"
     implementation(libs.maps.compose)

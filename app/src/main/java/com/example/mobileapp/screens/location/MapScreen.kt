@@ -19,6 +19,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.core.content.ContextCompat
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.example.mobileapp.screens.filterPanel.FilterPanel
 import com.example.mobileapp.screens.location.dialogs.AddLocationFullScreenDialog
 import com.example.mobileapp.service.LocationTrackingService
 import com.google.android.gms.maps.CameraUpdateFactory
@@ -38,6 +39,8 @@ fun MapScreen(viewModel: LocationViewModel = hiltViewModel()) {
     val photoUri by viewModel.photoUri.collectAsState()
     val filter by viewModel.filter.collectAsState()
     val locationObjects by viewModel.filteredLocationObjects.collectAsState()
+    val authors by viewModel.availableAuthors.collectAsState()
+
 
     val context = LocalContext.current
 
@@ -116,6 +119,7 @@ fun MapScreen(viewModel: LocationViewModel = hiltViewModel()) {
             currentStartDate = filter.dateRange?.first,
             currentEndDate = filter.dateRange?.second,
             onTypeChange = viewModel::setTypeFilter,
+            authors = authors,
             onAuthorChange = viewModel::setAuthorFilter,
             onDateChange = { start, end ->
                 if (start != null && end != null) viewModel.setDateFilter(start, end)
