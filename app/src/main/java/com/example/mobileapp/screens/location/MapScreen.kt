@@ -123,6 +123,9 @@ fun MapScreen(viewModel: LocationViewModel = hiltViewModel()) {
             onClear = {
                 viewModel.clearFilters()
                 isFilterVisible = false
+            },
+            onClose = {
+                isFilterVisible = false
             }
         )
 
